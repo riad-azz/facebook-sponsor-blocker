@@ -13,12 +13,8 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "matches": [
-        "*:\/\/*.facebook.com/*"
-      ]
+      "js": ["content.js"],
+      "matches": ["*://*.facebook.com/*"]
     }
   ]
 }
