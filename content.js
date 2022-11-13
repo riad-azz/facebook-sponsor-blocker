@@ -4,28 +4,35 @@ async function runApp() {
   // Get timeline element
   const timeline = await waitForTimeline();
   await wait(500);
-  // Removed sponsored posts from timeline
-
-  // Add listener to handle future posts
-  timeline.addEventListener('DOMNodeInserted', (event) => {
-    const element = event.target
-    // Check if added element is a post
-    const dots = element.querySelector("[aria-haspopup='menu']");
-    if (!dots) return;
-    // Check if comment section is active
-    const comment = element.getElementsByTagName("form")[0];
-    if (comment) return;
-    // Check if its the Reels section
-    const isReels = element.querySelector("[aria-label='Reels']")
-    if (isReels) return;
-    // Check if its a Group post
-    const isGroup = element.querySelector("b")
-    if(isGroup) return;
-    // THIS IS FOR DEBUG ONLY
-    // console.log(element);
-    // console.log("Found Sponsor Post");
-    element.remove();
-  });
+  // Observer
+  const config = { attributes: true, childList: true, subtree: true };
+  // Callback function to execute when mutations are observed
+  const callback = (mutationList, observer) => {
+    for (const mutation of mutationList) {
+      if (mutation.type === 'childList' & mutation.addedNodes.length > 0){
+        for (element of mutation.addedNodes) {
+          // Check if added element is a post
+          const dots = element.querySelector("[aria-haspopup='menu']");
+          if (!dots) return;
+          // Check if its the Reels section
+          const isReels = element.querySelector("[aria-label='Reels']");
+          if (isReels) return;
+          // Get Sponsor section span
+          const timeItem = element.querySelector("span[class='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x676frb x1nxh6w3 x1sibtaa xo1l8bm xi81zsa x1yc453h']");
+          if(!timeItem) return;
+          const spansCount = timeItem.querySelectorAll("span");
+          if (spansCount.length != 16) return;
+          // FOR DEBUG ONLY
+          // console.log(linkItem.href);
+          // console.log(element);
+          // console.log("Found Sponsor Post");
+          element.remove();
+        }
+      }
+    }
+  };
+  const observer = new MutationObserver(callback);
+  observer.observe(timeline, config);
 }
 
 async function waitForTimeline() {

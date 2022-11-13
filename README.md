@@ -4,4 +4,4 @@
 
 Note : Facebook keep trying to patch such exntensions. So feel free to report any problems in case it stops working.
 
-Don't forget to hit the :star:, If you like this repo.
+Don't forget to hit the :star:, If you like this repo
