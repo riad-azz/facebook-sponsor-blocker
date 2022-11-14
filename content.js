@@ -1,9 +1,8 @@
-const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
+// const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
 
 async function runApp() {
   // Get timeline element
   const timeline = await waitForTimeline();
-  await wait(500);
   // Observer
   const config = { attributes: true, childList: true, subtree: true };
   // Callback function to execute when mutations are observed
