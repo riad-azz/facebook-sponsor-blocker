@@ -1,7 +1,12 @@
 {
+  "author": "Riad Azzoun",
+  "developer": {
+    "name": "Riad Azzoun",
+    "url": "https://github.com/riad-azz"
+  },
   "manifest_version": 2,
   "name": "Facebook Sponsor Blocker",
-  "version": "2.3",
+  "version": "2.4",
   "description": "A extension to remove facebook sponsored posts.",
   "icons": {
     "16": "icons/fb-ads-16.png",
@@ -14,7 +19,8 @@
   "content_scripts": [
     {
       "js": ["content.js"],
-      "matches": ["*://*.facebook.com/*"]
+      "matches": ["*://*.facebook.com/*"],
+      "run_at": "document_start"
     }
   ]
 }
