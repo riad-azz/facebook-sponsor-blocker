@@ -26,7 +26,7 @@ async function runApp() {
 
 function removeSponsor(element) {
   // Check if post has sponsor text holder
-  const useElement = element.querySelector(`use`);
+  const useElement = element.querySelector(`use[*|href]`);
   if (!useElement) return;
   // Extract element id
   const post_id = useElement.getAttribute("xlink:href")
