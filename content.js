@@ -3,6 +3,7 @@
 async function runApp() {
   // Get timeline element
   const timeline = await waitForTimeline();
+  const shadowParent = await waitForShadowParent();
   // Observer
   const config = { attributes: true, childList: true, subtree: true };
   // Callback function to execute when mutations are observed
@@ -14,7 +15,7 @@ async function runApp() {
           try {
             const dots = element.querySelector("[aria-haspopup='menu']");
             if (!dots) return;
-            removeSponsor(element);
+            removeSponsor(element, shadowParent);
           } catch (error) { return; }
         }
       }
@@ -24,7 +25,7 @@ async function runApp() {
   observer.observe(timeline, config);
 }
 
-function removeSponsor(element) {
+async function removeSponsor(element, shadowParent) {
   // Check if post has sponsor text holder
   const useElement = element.querySelector(`use[*|href]`);
   if (!useElement) return;
@@ -32,11 +33,12 @@ function removeSponsor(element) {
   const post_id = useElement.getAttribute("xlink:href")
   if (!post_id) return;
   // Search for shadowroot with same id
-  const shadowElements = document.querySelectorAll("[id*=gid]");
+  const shadowElements = await waitForShadowElements(shadowParent);
   for (x of shadowElements) {
     const shadowID = "#" + x.getAttribute("id")
     if (shadowID !== post_id) continue;
     if (x.textContent != 'Sponsored') continue;
+    console.log(shadowID);
     // FOR DEBUG ONLY
     // console.log(x.textContent);
     // console.log(element);
@@ -47,10 +49,36 @@ function removeSponsor(element) {
   }
 }
 
+async function waitForShadowElements(shadowParent) {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(function () {
+      const elements = shadowParent.querySelectorAll("[id*=gid]");
+
+      if (elements) {
+        clearInterval(interval);
+        resolve(elements);
+      }
+    }, 10);
+  });
+}
+
+async function waitForShadowParent() {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(function () {
+      const element = document.querySelector('div[style="position: absolute; top: -10000px;"]');
+
+      if (element) {
+        clearInterval(interval);
+        resolve(element);
+      }
+    }, 50);
+  });
+}
+
 async function waitForTimeline() {
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
-      const timeline = document.querySelector(`[role="main"]`);
+      const timeline = document.querySelector('[role="main"]');
 
       if (timeline) {
         clearInterval(interval);
