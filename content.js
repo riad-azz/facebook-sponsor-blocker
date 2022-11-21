@@ -1,9 +1,13 @@
-// const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
-const DEBUG = true;
+// DEV VARS
+const DEBUG = false;
+
+// APP VARS
 // Get timeline element
 let timeline;
 let shadowParent;
 let currentUrl = location.href;
+
+// TIMELINE OBSERVER
 const config = { attributes: true, childList: true, subtree: true };
 // Callback function to execute when mutations are observed
 const callback = (mutationList, observer) => {
@@ -28,7 +32,7 @@ async function getElements() {
 }
 
 async function runApp() {
-  // Load Elements
+  // Load timeline and shadowParent Elements
   await getElements()
   // Start Observer
   observer.observe(timeline, config);
@@ -65,10 +69,12 @@ async function waitForShadowElements(shadowParent) {
     const interval = setInterval(function () {
       const elements = shadowParent.querySelectorAll("[id*=gid]");
       if (DEBUG) {
+        // FOR DEBUG ONLY
         console.log('Searching for elements')
       }
       if (elements) {
         if (DEBUG) {
+          // FOR DEBUG ONLY
           console.log('Found elements')
         }
         clearInterval(interval);
@@ -85,6 +91,7 @@ async function waitForShadowParent() {
 
       if (element) {
         if (DEBUG) {
+          // FOR DEBUG ONLY
           console.log(`Found shadow parent ${element}`)
         }
         clearInterval(interval);
@@ -101,6 +108,7 @@ async function waitForTimeline() {
 
       if (timeline) {
         if (DEBUG) {
+          // FOR DEBUG ONLY
           console.log(`Found timeline ${timeline}`)
         }
         clearInterval(interval);
@@ -117,6 +125,7 @@ async function waitForBody() {
 
       if (element) {
         if (DEBUG) {
+          // FOR DEBUG ONLY
           console.log(`Found body ${element}`)
         }
         clearInterval(interval);
@@ -128,17 +137,20 @@ async function waitForBody() {
 
 
 async function checkURL() {
+  // GET BODY ELEMENT
   const bodyList = await waitForBody();
+  // URL CHANGE OBSERVER
   const urlObserver = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       if (currentUrl != document.location.href) {
         currentUrl = document.location.href;
-        if(DEBUG){
-        console.log("url changed");
-        console.log(document.location.href);
+        if (DEBUG) {
+          // FOR DEBUG ONLY
+          console.log("url changed");
+          console.log(document.location.href);
         }
-        if(document.location.href != "https://www.facebook.com/"){
-          // STOP OBSERVER
+        if (document.location.href != "https://www.facebook.com/") {
+          // STOP TIMELINE OBSERVER
           observer.disconnect();
           return;
         }
