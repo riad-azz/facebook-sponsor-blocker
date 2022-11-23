@@ -34,6 +34,10 @@ async function getElements() {
 async function runApp() {
   // Load timeline and shadowParent Elements
   await getElements()
+  // Check if any sponsored appeared before load was finished
+  for(post of timeline.querySelectorAll("[aria-haspopup='menu']")){
+    removeSponsor(post, shadowParent);
+  }
   // Start Observer
   observer.observe(timeline, config);
 }
@@ -43,22 +47,21 @@ async function removeSponsor(element, shadowParent) {
   const useElement = element.querySelector(`use[*|href]`);
   if (!useElement) return;
   // Extract element id
-  const post_id = useElement.getAttribute("xlink:href")
+  const post_id = useElement.getAttribute("xlink:href").slice(1)
   if (!post_id) return;
   // Search for shadowroot with same id
-  const shadowElements = await waitForShadowElements(shadowParent);
+  const shadowElements = await waitForShadowElements(shadowParent, post_id);
+  if(!shadowElements) return;
   for (x of shadowElements) {
-    const shadowID = "#" + x.getAttribute("id")
-    if (shadowID !== post_id) continue;
     if (x.textContent != 'Sponsored') continue;
     // FOR DEBUG ONLY
     if (DEBUG) {
       console.log(x.textContent);
       console.log(element);
-      console.log(shadowID);
+      console.log(post_id);
       console.log("found a sponsored post");
     }else{
-      console.log(`Sponsored post deleted, ID : ${shadowID}`);
+      console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
     await x.remove();
     await element.remove()
@@ -66,10 +69,10 @@ async function removeSponsor(element, shadowParent) {
   }
 }
 
-async function waitForShadowElements(shadowParent) {
+async function waitForShadowElements(shadowParent, post_id) {
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
-      const elements = shadowParent.querySelectorAll("[id*=gid]");
+      const elements = shadowParent.querySelectorAll(`[id=${post_id}]`);
       if (DEBUG) {
         // FOR DEBUG ONLY
         console.log('Searching for elements')
@@ -78,6 +81,7 @@ async function waitForShadowElements(shadowParent) {
         if (DEBUG) {
           // FOR DEBUG ONLY
           console.log('Found elements')
+          console.log(elements);
         }
         clearInterval(interval);
         resolve(elements);
