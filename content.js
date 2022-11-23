@@ -51,15 +51,17 @@ async function removeSponsor(element, shadowParent) {
     const shadowID = "#" + x.getAttribute("id")
     if (shadowID !== post_id) continue;
     if (x.textContent != 'Sponsored') continue;
-    console.log(shadowID);
     // FOR DEBUG ONLY
     if (DEBUG) {
       console.log(x.textContent);
       console.log(element);
-      console.log("found the post");
+      console.log(shadowID);
+      console.log("found a sponsored post");
+    }else{
+      console.log(`Sponsored post deleted, ID : ${shadowID}`);
     }
-    x.remove();
-    element.remove()
+    await x.remove();
+    await element.remove()
     break;
   }
 }
@@ -168,5 +170,5 @@ async function checkURL() {
   urlObserver.observe(bodyList, config);
 }
 
-runApp();
 checkURL();
+runApp();
