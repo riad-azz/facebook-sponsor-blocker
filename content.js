@@ -1,8 +1,7 @@
 // DEV VARS
 const DEBUG = false;
-
 // APP VARS
-// Get timeline element
+const postsClass = ".x1lliihq"
 let timeline;
 let shadowParent;
 let currentUrl = location.href;
@@ -13,13 +12,8 @@ const config = { attributes: true, childList: true, subtree: true };
 const callback = (mutationList, observer) => {
   for (const mutation of mutationList) {
     if (mutation.type === 'childList' & mutation.addedNodes.length > 0) {
-      for (element of mutation.addedNodes) {
-        // Check if added element is a post
-        try {
-          const dots = element.querySelector("[aria-haspopup='menu']");
-          if (!dots) return;
-          removeSponsor(element, shadowParent);
-        } catch (error) { return; }
+      for(post of timeline.querySelectorAll(postsClass)){
+        removeSponsor(post, shadowParent);
       }
     }
   }
@@ -35,7 +29,7 @@ async function runApp() {
   // Load timeline and shadowParent Elements
   await getElements()
   // Check if any sponsored appeared before load was finished
-  for(post of timeline.querySelectorAll("[aria-haspopup='menu']")){
+  for(post of timeline.querySelectorAll(postsClass)){
     removeSponsor(post, shadowParent);
   }
   // Start Observer
@@ -75,12 +69,12 @@ async function waitForShadowElements(shadowParent, post_id) {
       const elements = shadowParent.querySelectorAll(`[id=${post_id}]`);
       if (DEBUG) {
         // FOR DEBUG ONLY
-        console.log('Searching for elements')
+        console.log('Searching for elements');
       }
       if (elements) {
         if (DEBUG) {
           // FOR DEBUG ONLY
-          console.log('Found elements')
+          console.log('Found elements');
           console.log(elements);
         }
         clearInterval(interval);
@@ -98,7 +92,8 @@ async function waitForShadowParent() {
       if (element) {
         if (DEBUG) {
           // FOR DEBUG ONLY
-          console.log(`Found shadow parent ${element}`)
+          console.log(`Found shadow parent`);
+          console.log(element);
         }
         clearInterval(interval);
         resolve(element);
@@ -115,7 +110,8 @@ async function waitForTimeline() {
       if (timeline) {
         if (DEBUG) {
           // FOR DEBUG ONLY
-          console.log(`Found timeline ${timeline}`)
+          console.log(`Found timeline`);
+          console.log(timeline);
         }
         clearInterval(interval);
         resolve(timeline);
