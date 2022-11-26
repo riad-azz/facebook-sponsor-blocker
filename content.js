@@ -15,6 +15,7 @@ const callback = (mutationList, observer) => {
       for(post of timeline.querySelectorAll(postsClass)){
         removeSponsor(post, shadowParent);
       }
+      break;
     }
   }
 };
@@ -57,8 +58,12 @@ async function removeSponsor(element, shadowParent) {
     }else{
       console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
-    await x.remove();
-    await element.remove()
+    if(x.isConnected){
+      await x.remove();
+    }
+    if(element.isConnected){
+      await element.remove()
+    }
     break;
   }
 }
