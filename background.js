@@ -17,7 +17,7 @@ const browserNotification = async function () {
     {
       type: "basic",
       title: "Facebook Sponsor Blocker",
-      message: `${removedCounter} Removed sponsored post so far.`,
+      message: `${removedCounter} Removed sponsored post so far for this session.`,
     }
   );
   isActive = false;
@@ -37,6 +37,13 @@ browser.runtime.onMessage.addListener(
       );
     } else if (request.msg === "enable-badge") {
       browser.browserAction.enable(sender.tab.id);
+      if(removedCounter === 0) return;
+      browser.browserAction.setBadgeText(
+        {
+          text: `${removedCounter}`,
+          tabId: sender.tab.id,
+        },
+      );
     }
   }
 );
