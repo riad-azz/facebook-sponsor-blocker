@@ -5,14 +5,39 @@ const postsClass = ".x1lliihq"
 let timeline;
 let shadowParent;
 let currentUrl = location.href;
+// UPDATE BADGE TEXT
+function updateBadgeText(){
+  browser.runtime.sendMessage({
+    msg: "sponsor-removed", 
+    data: {
+        subject: "",
+        content: "",
+    }
+  });
+  if(DEBUG){
+    console.log("Badge update request sent from content.js");
+  }
+}
 
+function enableBadge(){
+  browser.runtime.sendMessage({
+    msg: "enable-badge", 
+    data: {
+        subject: "",
+        content: "",
+    }
+  });
+  if(DEBUG){
+    console.log("Badge enable request sent from content.js");
+  }
+}
 // TIMELINE OBSERVER
 const config = { attributes: true, childList: true, subtree: true };
 // Callback function to execute when mutations are observed
 const callback = (mutationList, observer) => {
   for (const mutation of mutationList) {
     if (mutation.type === 'childList' & mutation.addedNodes.length > 0) {
-      for(post of timeline.querySelectorAll(postsClass)){
+      for (post of timeline.querySelectorAll(postsClass)) {
         removeSponsor(post, shadowParent);
       }
       break;
@@ -30,7 +55,7 @@ async function runApp() {
   // Load timeline and shadowParent Elements
   await getElements()
   // Check if any sponsored appeared before load was finished
-  for(post of timeline.querySelectorAll(postsClass)){
+  for (post of timeline.querySelectorAll(postsClass)) {
     removeSponsor(post, shadowParent);
   }
   // Start Observer
@@ -46,7 +71,7 @@ async function removeSponsor(element, shadowParent) {
   if (!post_id) return;
   // Search for shadowroot with same id
   const shadowElements = await waitForShadowElements(shadowParent, post_id);
-  if(!shadowElements) return;
+  if (!shadowElements) return;
   for (x of shadowElements) {
     if (x.textContent != 'Sponsored') continue;
     // FOR DEBUG ONLY
@@ -55,14 +80,15 @@ async function removeSponsor(element, shadowParent) {
       console.log(element);
       console.log(post_id);
       console.log("found a sponsored post");
-    }else{
+    } else {
       console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
-    if(x.isConnected){
+    if (x.isConnected) {
       await x.remove();
     }
-    if(element.isConnected){
+    if (element.isConnected) {
       await element.remove()
+      updateBadgeText();
     }
     break;
   }
@@ -175,5 +201,6 @@ async function checkURL() {
   urlObserver.observe(bodyList, config);
 }
 
+enableBadge();
 checkURL();
 runApp();
