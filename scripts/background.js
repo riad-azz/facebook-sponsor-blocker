@@ -9,21 +9,29 @@ browser.browserAction.setBadgeTextColor(
 )
 browser.browserAction.disable();
 
-const browserNotification = async function () {
+const browserNotification = async function (tab) {
   if (isActive) return;
   isActive = true;
-  await browser.notifications.create(
-    "unique",
-    {
-      type: "basic",
-      title: "Facebook Sponsor Blocker",
-      message: `${removedCounter} Removed sponsored post so far for this session.`,
-    }
-  );
-  isActive = false;
+
+  function onExecuted(result) {
+    console.log('Script excecuted successfully');
+    isActive = false;
+  }
+
+  function onError(error) {
+    console.error(error);
+    isActive = false;
+  }
+
+  const executing = browser.tabs.executeScript(tab.id, {
+    file: "scripts/notification.js",
+  });
+  await executing.then(onExecuted, onError);
 }
 
-browser.browserAction.onClicked.addListener(browserNotification);
+browser.browserAction.onClicked.addListener((tab) => {
+  browserNotification(tab);
+});
 
 browser.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
@@ -37,13 +45,15 @@ browser.runtime.onMessage.addListener(
       );
     } else if (request.msg === "enable-badge") {
       browser.browserAction.enable(sender.tab.id);
-      if(removedCounter === 0) return;
+      if (removedCounter === 0) return;
       browser.browserAction.setBadgeText(
         {
           text: `${removedCounter}`,
           tabId: sender.tab.id,
         },
       );
+    } else if (request.msg === "request-counter") {
+      sendResponse({ counter: `${removedCounter}` });
     }
   }
 );

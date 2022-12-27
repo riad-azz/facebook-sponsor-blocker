@@ -6,7 +6,7 @@
   },
   "manifest_version": 2,
   "name": "Facebook Sponsor Blocker",
-  "version": "4.3",
+  "version": "4.4",
   "description": "A extension to remove facebook sponsored posts.",
   "icons": {
     "16": "icons/fb-ads-16.png",
@@ -18,13 +18,13 @@
   },
   "content_scripts": [
     {
-      "js": ["content.js"],
+      "js": ["scripts/content.js"],
       "matches": ["*://*.facebook.com/*"],
       "run_at": "document_start"
     }
   ],
   "background":{
-    "scripts": ["background.js"]
+    "scripts": ["scripts/background.js"]
   },
   "browser_action": {
     "default_icon": {
@@ -34,7 +34,6 @@
     "default_title": "Facebook Sponsor Blocker"
   },
   "permissions": [
-    "notifications",
     "activeTab"
   ]
 }
