@@ -1,8 +1,17 @@
+function hideElement(element) {
+  element.style.display = 'none';
+}
+
+function showElement(element) {
+  element.style.opacity = 1;
+  element.style.display = 'block';
+}
+
 function notificationElement() {
   const body = document.querySelector('body');
   let container = document.querySelector('#riad-notif');
   if (container) {
-    container.style.display = "flex";
+    showElement(container);
     textElement = container.querySelector('div');
     closeButton = container.querySelector('a');
     return {
@@ -14,21 +23,25 @@ function notificationElement() {
   // Create the container
   container = document.createElement('div');
   container.id = 'riad-notif';
-  container.style = "display: flex; justify-content: space-between; align-items: center; padding: 12px 12px;\
-                    position: fixed; top: 0; right: 0; z-index: 9999; width: 200px; margin-right: 20px;\
-                    border: 1px white solid; opacity: 0.98; background: #242526;"
-  container.onclick = () => { container.style.display = 'none'; }
-  // Create message element
-  textElement = document.createElement('div');
-  textElement.style = "font-size: 14px; color: white; user-select: none;"
-  textElement.onclick = () => { container.style.display = 'none'; }
-  container.append(textElement);
+  container.style = 'display: block; justify-content: space-between; align-items: center; padding: 12px 12px;\
+                    position: fixed; top: 0; right: 0; width: 300px; z-index: 9999; margin-right: 20px;\
+                    border: 0.5px #868686 solid; border-radius: 4px; background: #242526;'
+  // Title Element
+  titleElement = document.createElement('h1');
+  titleElement.innerText = 'Facebook Sponsor Blocker';
+  titleElement.style = 'display: inline; font-family: Arial; font-size: 18px; color: white; user-select: none;'
+  container.append(titleElement);
   // Close button
   closeButton = document.createElement('a');
-  closeButton.style = 'font-size: 16px; color: white; text-decoration: none;';
+  closeButton.style = 'float: right; font-size: 18px; font-weight: bold; margin-right: 4px; color: white; text-decoration: none;\
+                      text-align: center; width: 25px; height: 25px; border: 0.5px white solid';
   closeButton.innerText = 'X';
-  closeButton.onclick = () => { container.style.display = 'none'; }
+  closeButton.onclick = () => hideElement(container);
   container.append(closeButton);
+  // Create message element
+  textElement = document.createElement('div');
+  textElement.style = 'display: block; font-family: Arial; font-size: 14px; color: white; margin-top: 8px;'
+  container.append(textElement);
   // Add container to the body
   body.append(container);
   return {
@@ -37,7 +50,6 @@ function notificationElement() {
     button: closeButton
   };
 }
-
 
 async function notifyBackgroundPage(textElement) {
 
@@ -56,26 +68,10 @@ async function notifyBackgroundPage(textElement) {
   await sending.then(handleResponse, handleError);
 }
 
-function fadeOutEffect(fadeTarget) {
-  fadeTarget.style.opacity = 1;
-  const fadeEffect = setInterval(function () {
-      if (fadeTarget.style.opacity >= 0.6) {
-          fadeTarget.style.opacity -= 0.01;
-      } else {
-        fadeTarget.style.display = "none";
-          clearInterval(fadeEffect);
-      }
-  }, 100);
-}
-
-
 async function runApp() {
   const notification = notificationElement();
   const container = notification.parent;
   await notifyBackgroundPage(notification.text);
-  fadeOutEffect(container);
 }
-
-
 
 runApp();
