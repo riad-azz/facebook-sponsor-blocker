@@ -28,6 +28,8 @@ const setUpTabCounter = (tabId) => {
   browser.browserAction.enable(tabId);
 }
 
+
+// Set the custom badge theme color
 browser.browserAction.setBadgeBackgroundColor(
   { color: 'grey' }
 )
@@ -35,14 +37,7 @@ browser.browserAction.setBadgeTextColor(
   { color: 'white' }
 )
 
-if (totalCount > 0) {
-  browser.browserAction.setBadgeText(
-    {
-      text: `${totalCount}`,
-    },
-  );
-}
-
+// Handle runtime messages
 browser.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.msg === "tab-ready") {
@@ -70,5 +65,15 @@ browser.runtime.onMessage.addListener(
     }
   }
 );
+
+
+// Clear closed tabs counter
+const handleRemoved = (tabId, removeInfo) => {
+  if (tabId in activeTabs) {
+    delete activeTabs[tabId];
+  }
+}
+
+browser.tabs.onRemoved.addListener(handleRemoved);
 
 loadTotalCount();
