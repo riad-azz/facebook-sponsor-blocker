@@ -72,7 +72,6 @@ async function removeSponsor(element, shadowParent) {
       console.log(element);
       console.log(post_id);
       console.log("found a sponsored post");
-    } else {
       console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
     if (x.isConnected) {
