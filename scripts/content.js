@@ -5,30 +5,22 @@ const postsClass = ".x1lliihq"
 let timeline;
 let shadowParent;
 let currentUrl = location.href;
-// UPDATE BADGE TEXT
-function updateBadgeText(){
+// TAB READY FOR COUNTER
+async function tabReady() {
   browser.runtime.sendMessage({
-    msg: "sponsor-removed", 
-    data: {
-        subject: "",
-        content: "",
-    }
+    msg: "tab-ready",
   });
-  if(DEBUG){
-    console.log("Badge update request sent from content.js");
+  if (DEBUG) {
+    console.log("Tab counter ready request sent from content.js");
   }
 }
-
-function enableBadge(){
+// UPDATE BADGE TEXT
+function updateBadgeText() {
   browser.runtime.sendMessage({
-    msg: "enable-badge", 
-    data: {
-        subject: "",
-        content: "",
-    }
+    msg: "sponsor-removed",
   });
-  if(DEBUG){
-    console.log("Badge enable request sent from content.js");
+  if (DEBUG) {
+    console.log("Badge update request sent from content.js");
   }
 }
 // TIMELINE OBSERVER
@@ -201,6 +193,6 @@ async function checkURL() {
   urlObserver.observe(bodyList, config);
 }
 
-enableBadge();
+tabReady();
 checkURL();
 runApp();

@@ -1,5 +1,32 @@
-let removedCounter = 0;
+const activeTabs = {};
+let totalCount = 0;
 let isActive = false;
+
+// Disable pop up in all tabs
+browser.browserAction.disable()
+
+// Load total removed posts count from extension storage
+const loadTotalCount = async () => {
+  const counter = await browser.storage.local.get("totalCount");
+  if (counter.totalCount) {
+    totalCount = counter.totalCount;
+  } else {
+    await browser.storage.local.set({ "totalCount": 0 });
+  }
+}
+
+// Update total count in extension storage
+const saveTotalCount = (count) => {
+  browser.storage.local.set({ "totalCount": count });
+}
+
+// Start count for the specified tab and enable the browser action
+const setUpTabCounter = (tabId) => {
+  // Start the counter
+  activeTabs[tabId] = 0;
+  // Enable the pop up window for this tab
+  browser.browserAction.enable(tabId);
+}
 
 browser.browserAction.setBadgeBackgroundColor(
   { color: 'grey' }
@@ -7,53 +34,41 @@ browser.browserAction.setBadgeBackgroundColor(
 browser.browserAction.setBadgeTextColor(
   { color: 'white' }
 )
-browser.browserAction.disable();
 
-const browserNotification = async function (tab) {
-  if (isActive) return;
-  isActive = true;
-
-  function onExecuted(result) {
-    console.log('Script excecuted successfully');
-    isActive = false;
-  }
-
-  function onError(error) {
-    console.error(error);
-    isActive = false;
-  }
-
-  const executing = browser.tabs.executeScript(tab.id, {
-    file: "scripts/notification.js",
-  });
-  await executing.then(onExecuted, onError);
+if (totalCount > 0) {
+  browser.browserAction.setBadgeText(
+    {
+      text: `${totalCount}`,
+    },
+  );
 }
-
-browser.browserAction.onClicked.addListener((tab) => {
-  browserNotification(tab);
-});
 
 browser.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    if (request.msg === "sponsor-removed") {
-      removedCounter += 1;
+    if (request.msg === "tab-ready") {
+      const currentTabId = sender.tab.id;
+      setUpTabCounter(currentTabId);
+    } else if (request.msg === "sponsor-removed") {
+      const currentTabId = sender.tab.id;
+      totalCount += 1;
+      saveTotalCount(totalCount);
+      activeTabs[currentTabId] += 1
       browser.browserAction.setBadgeText(
         {
-          text: `${removedCounter}`,
-          tabId: sender.tab.id,
+          tabId: currentTabId,
+          text: `${activeTabs[currentTabId]}`,
         },
       );
-    } else if (request.msg === "enable-badge") {
-      browser.browserAction.enable(sender.tab.id);
-      if (removedCounter === 0) return;
-      browser.browserAction.setBadgeText(
-        {
-          text: `${removedCounter}`,
-          tabId: sender.tab.id,
-        },
-      );
-    } else if (request.msg === "request-counter") {
-      sendResponse({ counter: `${removedCounter}` });
+    }
+    else if (request.msg === "request-counter") {
+      const currentTabId = request.tabId;
+      response = {
+        totalCounter: totalCount,
+        tabCounter: `${activeTabs[currentTabId]}`
+      }
+      sendResponse(response);
     }
   }
 );
+
+loadTotalCount();

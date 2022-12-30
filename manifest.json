@@ -31,9 +31,12 @@
       "19": "icons/fb-ads-32.png",
       "38": "icons/fb-ads-64.png"
     },
-    "default_title": "Facebook Sponsor Blocker"
+    "default_title": "Facebook Sponsor Blocker",
+    "default_popup": "static/popup.html"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "tabs",
+    "storage"
   ]
 }

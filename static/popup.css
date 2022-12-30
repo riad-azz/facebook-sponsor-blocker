@@ -1,0 +1,56 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  background: #242526;
+}
+
+.fsb-divider{
+  width: 100%;
+  border-bottom: 1px grey solid;
+  margin-bottom: 6px;
+}
+
+.fsb-main{
+  max-width: 320px;
+  padding: 4px 4px 0 4px;
+}
+
+.fsb-top{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fsb-logo{
+  height: 24px;
+  margin-right: 8px;
+  margin-bottom: 4px;
+}
+
+.fsb-title{
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 10px;
+  user-select: none;
+}
+
+.fsb-message{
+  display: block;
+  font-size: 16px;
+  background-color: #3a3b3c;
+  border-radius: 12px;
+  line-height: 1.5;
+  padding: 4px 20px;
+  margin-bottom: 8px;
+}
+
+.fsb-tab-count{
+  font-size: 17px;
+  float: right;
+}
+
+.fsb-total-count{
+  font-size: 17px;
+  float: right;
+}
