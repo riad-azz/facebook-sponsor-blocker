@@ -1,6 +1,6 @@
 # Facebook No Sponsored Posts - Extension
 
-Removed sponsored posts from your facebook feed.
+Block and remove sponsored posts from your facebook feed.
 
 ## A simple exstension to remove sponsored posts from facebook feed
 
