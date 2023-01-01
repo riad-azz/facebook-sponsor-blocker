@@ -38,4 +38,16 @@ const getRemovedCount = async () => {
   await sending.then(handleResponse, handleError);
 }
 
-getRemovedCount();
+const counterListener = (request, sender, sendRes) => {
+  if(request.msg === "counter-updated"){
+    tabCountElement.innerText = `${request.tabCounter}`;
+    totalCountElement.innerText = `${request.totalCounter}`;
+  }
+}
+
+function runApp(){
+  getRemovedCount();
+  browser.runtime.onMessage.addListener(counterListener);
+}
+
+runApp();

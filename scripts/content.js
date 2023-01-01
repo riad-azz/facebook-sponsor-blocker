@@ -8,7 +8,7 @@ let currentUrl = location.href;
 // TAB READY FOR COUNTER
 async function tabReady() {
   browser.runtime.sendMessage({
-    msg: "tab-ready",
+    msg: "start-counter",
   });
   if (DEBUG) {
     console.log("Tab counter ready request sent from content.js");
@@ -17,7 +17,7 @@ async function tabReady() {
 // UPDATE BADGE TEXT
 function updateBadgeText() {
   browser.runtime.sendMessage({
-    msg: "sponsor-removed",
+    msg: "update-counter",
   });
   if (DEBUG) {
     console.log("Badge update request sent from content.js");
