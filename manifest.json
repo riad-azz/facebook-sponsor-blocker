@@ -18,13 +18,19 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
-      "matches": ["*://*.facebook.com/*"],
+      "js": [
+        "scripts/content.js"
+      ],
+      "matches": [
+        "*://*.facebook.com/*"
+      ],
       "run_at": "document_start"
     }
   ],
-  "background":{
-    "scripts": ["scripts/background.js"]
+  "background": {
+    "scripts": [
+      "scripts/background.js"
+    ]
   },
   "browser_action": {
     "default_icon": {

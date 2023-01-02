@@ -1,5 +1,6 @@
 // ---- DEV VARS ----
 const DEBUG = false;
+const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
 // ---- APP VARS ----
 // Constant vars
 const timelineSelector = '[role="main"]';
@@ -50,7 +51,7 @@ const startTabCounter = async () => {
   }
 }
 // UPDATE BADGE TEXT
-const updateBadgeText = async () => {
+const updateCounter = async () => {
   browser.runtime.sendMessage({
     msg: "update-counter",
   });
@@ -83,12 +84,12 @@ const handlePost = async (element) => {
     // Remove the sponsored post
     if (x.isConnected) x.id = "";
     if (element.isConnected) await element.remove();
-    await updateBadgeText();
+    await updateCounter();
     return;
   }
 }
 
-// ---- Utils ----
+// ---- UTILS ----
 
 async function waitForElementId(post_id) {
   return new Promise((resolve, reject) => {
@@ -117,6 +118,21 @@ async function waitForElementSelector(selector) {
         resolve(element);
       }
     }, 50);
+  });
+}
+
+// ---- TEST UTILS ----
+const testUpdateCounter = async (times = 3, timer = 3000) => {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(function () {
+      updateCounter();
+      times -= 1;
+      if (times <= 0) {
+        console.log("Test finished");
+        clearInterval(interval);
+        resolve(0);
+      }
+    }, timer);
   });
 }
 

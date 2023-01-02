@@ -44,19 +44,14 @@ const updateTabBadgeText = (tabId) => {
 }
 
 // Notify the popup page that the counter changed
-const notifyPopup = (tabId) => {
+const notifyPopup = async (tabId) => {
   tabCount = activeTabs[tabId];
   const sending = browser.runtime.sendMessage({
     msg: "counter-updated",
     totalCounter: totalCount,
     tabCounter: tabCount
   });
-
-  try {
-    sending.then(null, (error) => console.error(error));
-  } catch {
-    console.log("Popup page is not open");
-  }
+  sending.then(null, (error) => console.log("Popup page is not open"));
 }
 
 // -- Manage the counters updates --
