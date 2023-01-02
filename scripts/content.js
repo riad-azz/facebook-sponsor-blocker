@@ -83,7 +83,6 @@ const handlePost = async (element) => {
     // Remove the sponsored post
     if (x.isConnected) x.id = "";
     if (element.isConnected) element.style.display = "none";
-    console.log(`Sponsored post deleted, ID : ${post_id}`);
     await updateBadgeText();
     return;
   }
