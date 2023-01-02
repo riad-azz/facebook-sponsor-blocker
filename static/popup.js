@@ -1,5 +1,6 @@
 const tabCountElement = document.querySelector('.fsb-tab-count');
 const totalCountElement = document.querySelector('.fsb-total-count');
+const tabCountParent = tabCountElement.parentElement;
 
 const getCurrentTab = async () => {
   currentTab = null;
@@ -12,7 +13,7 @@ const getCurrentTab = async () => {
     console.error(`Error: ${error}`);
   }
 
-  const fetching = browser.tabs.query({currentWindow: true, active: true});
+  const fetching = browser.tabs.query({ currentWindow: true, active: true });
   await fetching.then(handleResponse, handleError)
 
   return currentTab;
@@ -21,7 +22,11 @@ const getCurrentTab = async () => {
 const getRemovedCount = async () => {
 
   function handleResponse(response) {
-    tabCountElement.innerText = `${response.tabCounter}`;
+    if (response.tabCounter !== undefined) {
+      tabCountElement.innerText = `${response.tabCounter}`;
+    } else {
+      tabCountParent.style.display = 'none';
+    }
     totalCountElement.innerText = `${response.totalCounter}`;
   }
 
@@ -39,13 +44,13 @@ const getRemovedCount = async () => {
 }
 
 const counterListener = (request, sender, sendRes) => {
-  if(request.msg === "counter-updated"){
+  if (request.msg === "counter-updated") {
     tabCountElement.innerText = `${request.tabCounter}`;
     totalCountElement.innerText = `${request.totalCounter}`;
   }
 }
 
-function runApp(){
+function runApp() {
   getRemovedCount();
   browser.runtime.onMessage.addListener(counterListener);
 }

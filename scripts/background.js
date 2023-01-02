@@ -1,9 +1,10 @@
+// -- App vars --
 const activeTabs = {};
-let totalCount = 0;
-let isActive = false;
+let totalCount;
 
-// Disable pop up in all tabs
-browser.browserAction.disable()
+// Disable Extension button
+browser.browserAction.disable();
+
 // Set the custom badge theme color
 browser.browserAction.setBadgeBackgroundColor(
   { color: 'grey' }
@@ -17,6 +18,7 @@ const loadTotalCount = async () => {
   if (counter.totalCount) {
     totalCount = counter.totalCount;
   } else {
+    totalCount = 0;
     await browser.storage.local.set({ "totalCount": 0 });
   }
 }
@@ -42,15 +44,19 @@ const updateTabBadgeText = (tabId) => {
 }
 
 // Notify the popup page that the counter changed
-const notifyPopup = () => {
+const notifyPopup = (tabId) => {
+  tabCount = activeTabs[tabId];
+  const sending = browser.runtime.sendMessage({
+    msg: "counter-updated",
+    totalCounter: totalCount,
+    tabCounter: tabCount
+  });
+
   try {
-    const sending = browser.runtime.sendMessage({
-      msg: "counter-updated",
-      totalCounter: totalCount,
-      tabCounter: activeTabs[tabId]
-    });
     sending.then(null, (error) => console.error(error));
-  } catch { console.log("Popup page is not open"); }
+  } catch {
+    console.log("Popup page is not open");
+  }
 }
 
 // -- Manage the counters updates --
@@ -60,7 +66,7 @@ const updateCount = (tabId) => {
   activeTabs[tabId] += 1
   browser.storage.local.set({ "totalCount": totalCount });
   updateTabBadgeText(tabId);
-  notifyPopup();
+  notifyPopup(tabId);
 }
 
 // onMessage Listener
