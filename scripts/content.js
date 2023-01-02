@@ -82,7 +82,7 @@ const handlePost = async (element) => {
     }
     // Remove the sponsored post
     if (x.isConnected) x.id = "";
-    if (element.isConnected) element.style.display = "none";
+    if (element.isConnected) await element.remove();
     await updateBadgeText();
     return;
   }
