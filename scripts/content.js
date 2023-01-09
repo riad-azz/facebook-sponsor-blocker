@@ -60,7 +60,13 @@ const updateCounter = async () => {
   }
 }
 
-// ---- Function dedicated for  finding and removing sponsored posts ----
+// SET UP THE PAGE FOR BETTER SCROLLING
+const smoothScrolling = () => {
+  const htmlElement = document.querySelector('html');
+  htmlElement.style = 'scroll-behavior: smooth !important;';
+}
+
+// ---- Function dedicated for finding and removing sponsored posts ----
 const handlePost = async (element) => {
   // Check if post has sponsor text holder
   const useElement = element.querySelector(`use[*|href]`);
@@ -158,6 +164,8 @@ const observeTimeline = async () => {
 
 
 function runApp() {
+  // Change the html page for better scroll experience
+  smoothScrolling();
   // Activate Extension button
   startTabCounter();
   // Start Observers
