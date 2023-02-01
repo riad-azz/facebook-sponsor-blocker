@@ -32,6 +32,8 @@ const handleLocation = (mutations) => {
       }
       // START THE TIMELINE OBSERVER
       observeTimeline();
+      // EXTRA CHECK FOR SPONSORED POSTS AFTER URL CHANGE
+      manualSponsorRemoval();
     }
   });
 }
@@ -58,12 +60,6 @@ const updateCounter = async () => {
   if (DEBUG) {
     console.log("Badge update request sent from content.js");
   }
-}
-
-// SET UP THE PAGE FOR BETTER SCROLLING
-const smoothScrolling = () => {
-  const htmlElement = document.querySelector('html');
-  htmlElement.style = 'scroll-behavior: smooth !important;';
 }
 
 // ---- Function dedicated for finding and removing sponsored posts ----
@@ -96,6 +92,13 @@ const handlePost = async (element) => {
 }
 
 // ---- UTILS ----
+
+const manualSponsorRemoval = () => {
+  // Check if any sponsored appeared before load was finished
+  for (post of timeline.querySelectorAll(postsSelector)) {
+    handlePost(post);
+  }
+}
 
 async function waitForElementId(post_id) {
   return new Promise((resolve, reject) => {
@@ -154,18 +157,14 @@ const observeTimeline = async () => {
   // Load timeline and shadowParent Elements
   timeline = await waitForElementSelector(timelineSelector);
   shadowParent = await waitForElementSelector(shadowParentSelector);
-  // Check if any sponsored appeared before load was finished
-  for (post of timeline.querySelectorAll(postsSelector)) {
-    handlePost(post);
-  }
+  // Remove posts manually after observer is ready
+  manualSponsorRemoval();
   // Observe timeline
   timelineObserver.observe(timeline, timelineObserverConfig);
 }
 
 
 function runApp() {
-  // Change the html page for better scroll experience
-  smoothScrolling();
   // Activate Extension button
   startTabCounter();
   // Start Observers
