@@ -1,10 +1,10 @@
 // ---- DEV VARS ----
-const DEBUG = true;
+const DEBUG = false;
 const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
 // ---- APP VARS ----
 let removing = false;
 let removeSponsoredPosts = true;
-let removeSuggestedPosts = true;
+let removeSuggestedPosts = false;
 // Constant vars
 const timelineSelector = '[role="main"]';
 const postsSelector = '.x1lliihq'

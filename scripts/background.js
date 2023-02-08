@@ -25,21 +25,18 @@ const loadSettings = async () => {
   }
   // Remove sponsored
   const sponsored = await browser.storage.local.get("removeSponsored");
-  if (!sponsored) {
+  if (sponsored.removeSponsored === undefined) {
     await browser.storage.local.set({ "removeSponsored": true });
     removeSponsored = true;
   } else {
-    console.log(`fuck spons ${sponsored.removeSponsored}`);
     removeSponsored = sponsored.removeSponsored;
   }
   // Remove sponsored
   const suggested = await browser.storage.local.get("removeSuggested");
-  if (!suggested) {
-    console.log("fuck sug");
+  if (suggested.removeSuggested === undefined) {
     await browser.storage.local.set({ "removeSuggested": false });
     removeSuggested = false;
   } else {
-    console.log(`fuck sugg ${suggested.removeSuggested}`);
     removeSuggested = suggested.removeSuggested;
   }
 }
@@ -123,8 +120,6 @@ const handleOnMessage = (request, sender, sendResponse) => {
   if (request.msg === "start-counter") {
     const currentTabId = sender.tab.id;
     startTabCounter(currentTabId);
-    console.log(removeSponsored);
-    console.log(removeSuggested);
     checkSponsored(currentTabId, removeSponsored);
     checkSuggested(currentTabId, removeSuggested);
   } else if (request.msg === "update-counter") {

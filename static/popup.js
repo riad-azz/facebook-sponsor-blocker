@@ -105,7 +105,7 @@ const counterListener = (request, sender, sendRes) => {
 async function runApp() {
   getRemovedCount();
   const sponsored = await browser.storage.local.get("removeSponsored");
-  checkSponsored.checked = sponsored.removeSponsored
+  checkSponsored.checked = sponsored.removeSponsored;
   const suggested = await browser.storage.local.get("removeSuggested");
   checkSuggested.checked = suggested.removeSuggested;
   checkSponsored.addEventListener('change', sponsoredOnChange);
