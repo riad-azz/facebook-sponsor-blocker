@@ -54,6 +54,14 @@ const notifyPopup = async (tabId) => {
   sending.then(null, (error) => console.log("Popup page is not open"));
 }
 
+// Send remove sponsor request to content script
+const removeSponsors = async (tabId) => {
+  const sending = browser.tabs.sendMessage(
+    tabId,
+    'request-remove',
+  );
+}
+
 // -- Manage the counters updates --
 const updateCount = (tabId) => {
   // Update the counter for specified tab and the total count
@@ -80,6 +88,9 @@ const handleOnMessage = (request, sender, sendResponse) => {
       tabCounter: activeTabs[currentTabId]
     }
     sendResponse(response);
+  } else if (request.msg === 'request-remove') {
+    const currentTabId = request.tabId;
+    removeSponsors(currentTabId);
   }
 }
 

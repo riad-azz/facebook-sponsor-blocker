@@ -2,6 +2,7 @@
 const DEBUG = false;
 const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
 // ---- APP VARS ----
+let removing = false;
 // Constant vars
 const timelineSelector = '[role="main"]';
 const postsSelector = '.x1lliihq'
@@ -43,6 +44,12 @@ let timeline;
 let shadowParent;
 let currentLocation = location.href;
 // ---- Background communication ----
+// Listen to messages
+const handleBackground = (request) => {
+  if(request === 'request-remove'){
+    manualSponsorRemoval();
+  }
+}
 // Start the tab counter
 const startTabCounter = async () => {
   browser.runtime.sendMessage({
@@ -94,10 +101,13 @@ const handlePost = async (element) => {
 // ---- UTILS ----
 
 const manualSponsorRemoval = () => {
+  if(removing) return;
+  removing = true;
   // Check if any sponsored appeared before load was finished
   for (post of timeline.querySelectorAll(postsSelector)) {
     handlePost(post);
   }
+  removing = false;
 }
 
 async function waitForElementId(post_id) {
@@ -170,6 +180,8 @@ function runApp() {
   // Start Observers
   observeTimeline();
   observeLocation();
+  // Start Background Listener
+  browser.runtime.onMessage.addListener(handleBackground);
 }
 
 runApp();

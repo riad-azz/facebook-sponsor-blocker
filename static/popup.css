@@ -46,6 +46,18 @@ body {
   margin-bottom: 8px;
 }
 
+.fsb-button{
+  display: block;
+  font-size: 16px;
+  color: white;
+  width: 100%;
+  background-color: #434446;
+  border-radius: 12px;
+  line-height: 1.5;
+  padding: 2px 20px;
+  margin-bottom: 8px;
+}
+
 .fsb-tab-count{
   font-size: 17px;
   float: right;

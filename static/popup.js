@@ -1,6 +1,8 @@
 const tabCountElement = document.querySelector('.fsb-tab-count');
 const totalCountElement = document.querySelector('.fsb-total-count');
 const tabCountParent = tabCountElement.parentElement;
+const removeButton = document.querySelector('.fsb-button')
+
 
 const getCurrentTab = async () => {
   currentTab = null;
@@ -17,6 +19,25 @@ const getCurrentTab = async () => {
   await fetching.then(handleResponse, handleError)
 
   return currentTab;
+}
+
+const removeSponsors = async () => {
+  function handleResponse(response) {
+    console.log("Sponsored posts removed successfully");
+  }
+
+  function handleError(error) {
+    console.error(`Error: ${error}`);
+  }
+
+  const tabId = await getCurrentTab();
+  const sending = browser.runtime.sendMessage({
+    msg: "request-remove",
+    tabId: tabId
+  });
+
+  await sending.then(handleResponse, handleError);
+
 }
 
 const getRemovedCount = async () => {
@@ -52,6 +73,7 @@ const counterListener = (request, sender, sendRes) => {
 
 function runApp() {
   getRemovedCount();
+  removeButton.onclick = removeSponsors;
   browser.runtime.onMessage.addListener(counterListener);
 }
 
