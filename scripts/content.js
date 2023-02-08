@@ -1,12 +1,15 @@
 // ---- DEV VARS ----
-const DEBUG = false;
+const DEBUG = true;
 const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
 // ---- APP VARS ----
 let removing = false;
+let removeSponsoredPosts = true;
+let removeSuggestedPosts = true;
 // Constant vars
 const timelineSelector = '[role="main"]';
 const postsSelector = '.x1lliihq'
 const shadowParentSelector = 'div[style="position: absolute; top: -10000px;"]';
+const suggestedSelector = 'div.xcnsx8t';
 // TIMELINE OBSERVER
 const timelineObserverConfig = { attributes: true, childList: true, subtree: true };
 const handleTimeline = (mutationList, observer) => {
@@ -33,8 +36,8 @@ const handleLocation = (mutations) => {
       }
       // START THE TIMELINE OBSERVER
       observeTimeline();
-      // EXTRA CHECK FOR SPONSORED POSTS AFTER URL CHANGE
-      manualSponsorRemoval();
+      // EXTRA CHECK FOR POSTS AFTER URL CHANGE
+      manualPostsRemoval();
     }
   });
 }
@@ -46,8 +49,18 @@ let currentLocation = location.href;
 // ---- Background communication ----
 // Listen to messages
 const handleBackground = (request) => {
-  if(request === 'request-remove'){
-    manualSponsorRemoval();
+  if (request.msg === 'request-remove') {
+    manualPostsRemoval();
+  } else if (request.msg === 'request-check-sponsored') {
+    if (DEBUG) {
+      console.log(`sponsored removed : ${request.state}`);
+    }
+    removeSponsoredPosts = request.state;
+  } else if (request.msg === 'request-check-suggested') {
+    if (DEBUG) {
+      console.log(`suggested removed : ${request.state}`);
+    }
+    removeSuggestedPosts = request.state;
   }
 }
 // Start the tab counter
@@ -69,39 +82,71 @@ const updateCounter = async () => {
   }
 }
 
-// ---- Function dedicated for finding and removing sponsored posts ----
-const handlePost = async (element) => {
+// ---- Suggested posts handler ----
+const handleSuggestedPost = async (post) => {
+  if (!removeSuggestedPosts) {
+    if (DEBUG) {
+      console.log(`Did not remove suggested posts ${removeSuggestedPosts}`)
+    }
+    return false;
+  }
+  const isSuggested = post.querySelector(suggestedSelector);
+  if (!isSuggested) return false;
+  removeElement(post);
+  return true;
+}
+
+// ---- Sponsored posts handler ----
+const handleSponsoredPosts = async (post) => {
+  if (!removeSponsoredPosts) {
+    if (DEBUG) {
+      console.log(`Did not remove sponsered posts ${removeSponsoredPosts}`)
+    }
+    return false;
+  }
   // Check if post has sponsor text holder
-  const useElement = element.querySelector(`use[*|href]`);
-  if (!useElement) return;
+  const useElement = post.querySelector(`use[*|href]`);
+  if (!useElement) return false;
   // Extract element id
   const post_id = useElement.getAttribute("xlink:href").slice(1)
-  if (!post_id) return;
+  if (!post_id) return false;
   // Search for shadowroot with same id
   const shadowElements = await waitForElementId(post_id);
-  if (!shadowElements) return;
+  if (!shadowElements) return false;
   for (x of shadowElements) {
     if (x.textContent != 'Sponsored') continue;
     // FOR DEBUG ONLY
     if (DEBUG) {
       console.log(x.textContent);
-      console.log(element);
+      console.log(post);
       console.log(post_id);
       console.log("found a sponsored post");
       console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
     // Remove the sponsored post
     if (x.isConnected) x.id = "";
-    if (element.isConnected) await element.remove();
+    removeElement(post);
     await updateCounter();
-    return;
+    return true;
   }
+  return false;
+}
+
+// ---- Posts handler ----
+const handlePost = async (element) => {
+  // Check if Suggested
+  await handleSuggestedPost(element);
+  // Check if Sponsored
+  await handleSponsoredPosts(element);
 }
 
 // ---- UTILS ----
+const removeElement = async (element) => {
+  if (element.isConnected) await element.remove();
+}
 
-const manualSponsorRemoval = () => {
-  if(removing) return;
+const manualPostsRemoval = () => {
+  if (removing) return;
   removing = true;
   // Check if any sponsored appeared before load was finished
   for (post of timeline.querySelectorAll(postsSelector)) {
@@ -168,7 +213,7 @@ const observeTimeline = async () => {
   timeline = await waitForElementSelector(timelineSelector);
   shadowParent = await waitForElementSelector(shadowParentSelector);
   // Remove posts manually after observer is ready
-  manualSponsorRemoval();
+  manualPostsRemoval();
   // Observe timeline
   timelineObserver.observe(timeline, timelineObserverConfig);
 }

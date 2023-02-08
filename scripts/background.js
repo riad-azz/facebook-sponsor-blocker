@@ -1,7 +1,8 @@
 // -- App vars --
 const activeTabs = {};
 let totalCount;
-
+let removeSponsored;
+let removeSuggested;
 // Disable Extension button
 browser.browserAction.disable();
 
@@ -13,13 +14,33 @@ browser.browserAction.setBadgeTextColor(
   { color: 'white' }
 )
 // Load total removed posts count from extension storage
-const loadTotalCount = async () => {
+const loadSettings = async () => {
+  // Total counter
   const counter = await browser.storage.local.get("totalCount");
   if (counter.totalCount) {
     totalCount = counter.totalCount;
   } else {
     totalCount = 0;
     await browser.storage.local.set({ "totalCount": 0 });
+  }
+  // Remove sponsored
+  const sponsored = await browser.storage.local.get("removeSponsored");
+  if (!sponsored) {
+    await browser.storage.local.set({ "removeSponsored": true });
+    removeSponsored = true;
+  } else {
+    console.log(`fuck spons ${sponsored.removeSponsored}`);
+    removeSponsored = sponsored.removeSponsored;
+  }
+  // Remove sponsored
+  const suggested = await browser.storage.local.get("removeSuggested");
+  if (!suggested) {
+    console.log("fuck sug");
+    await browser.storage.local.set({ "removeSuggested": false });
+    removeSuggested = false;
+  } else {
+    console.log(`fuck sugg ${suggested.removeSuggested}`);
+    removeSuggested = suggested.removeSuggested;
   }
 }
 
@@ -56,13 +77,38 @@ const notifyPopup = async (tabId) => {
 
 // Send remove sponsor request to content script
 const removeSponsors = async (tabId) => {
-  const sending = browser.tabs.sendMessage(
+  browser.tabs.sendMessage(
     tabId,
-    'request-remove',
+    { msg: 'request-remove' }
   );
 }
 
-// -- Manage the counters updates --
+// -- Update what posts to remove --
+const checkSponsored = async (tabId, check) => {
+  if (!tabId) return;
+  browser.tabs.sendMessage(
+    tabId,
+    {
+      msg: 'request-check-sponsored',
+      state: check,
+    }
+  );
+  removeSponsored = check;
+}
+
+const checkSuggested = async (tabId, check) => {
+  if (!tabId) return;
+  browser.tabs.sendMessage(
+    tabId,
+    {
+      msg: 'request-check-suggested',
+      state: check,
+    }
+  );
+  removeSuggested = check;
+}
+
+// -- Manage the popup updates --
 const updateCount = (tabId) => {
   // Update the counter for specified tab and the total count
   totalCount += 1;
@@ -77,6 +123,10 @@ const handleOnMessage = (request, sender, sendResponse) => {
   if (request.msg === "start-counter") {
     const currentTabId = sender.tab.id;
     startTabCounter(currentTabId);
+    console.log(removeSponsored);
+    console.log(removeSuggested);
+    checkSponsored(currentTabId, removeSponsored);
+    checkSuggested(currentTabId, removeSuggested);
   } else if (request.msg === "update-counter") {
     const currentTabId = sender.tab.id;
     updateCount(currentTabId);
@@ -91,6 +141,12 @@ const handleOnMessage = (request, sender, sendResponse) => {
   } else if (request.msg === 'request-remove') {
     const currentTabId = request.tabId;
     removeSponsors(currentTabId);
+  } else if (request.msg === 'request-check-sponsored') {
+    const currentTabId = request.tabId;
+    checkSponsored(currentTabId, request.state);
+  } else if (request.msg === 'request-check-suggested') {
+    const currentTabId = request.tabId;
+    checkSuggested(currentTabId, request.state);
   }
 }
 
@@ -106,7 +162,7 @@ const handleRemovedTabs = (tabId, removeInfo) => {
 // Main run function
 function runApp() {
   // Set up app variables
-  loadTotalCount();
+  loadSettings();
   // Add event listeners
   browser.runtime.onMessage.addListener(handleOnMessage);
   browser.tabs.onRemoved.addListener(handleRemovedTabs);

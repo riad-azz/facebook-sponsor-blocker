@@ -1,7 +1,9 @@
 const tabCountElement = document.querySelector('.fsb-tab-count');
 const totalCountElement = document.querySelector('.fsb-total-count');
 const tabCountParent = tabCountElement.parentElement;
-const removeButton = document.querySelector('.fsb-button')
+const checkSponsored = document.querySelector('#sponsored-posts');
+const checkSuggested = document.querySelector('#suggested-posts');
+const removeButton = document.querySelector('.fsb-button');
 
 
 const getCurrentTab = async () => {
@@ -19,6 +21,31 @@ const getCurrentTab = async () => {
   await fetching.then(handleResponse, handleError)
 
   return currentTab;
+}
+
+
+const sponsoredOnChange = async (event) => {
+  const tabId = await getCurrentTab();
+  if (!tabId) return;
+  await browser.storage.local.set({ "removeSponsored": checkSponsored.checked });
+
+  browser.runtime.sendMessage({
+    tabId: tabId,
+    msg: "request-check-sponsored",
+    state: checkSponsored.checked,
+  });
+}
+
+const suggestedOnChange = async (event) => {
+  const tabId = await getCurrentTab();
+  if (!tabId) return;
+  await browser.storage.local.set({ "removeSuggested": checkSuggested.checked });
+
+  browser.runtime.sendMessage({
+    tabId: tabId,
+    msg: "request-check-suggested",
+    state: checkSuggested.checked,
+  });
 }
 
 const removeSponsors = async () => {
@@ -68,11 +95,21 @@ const counterListener = (request, sender, sendRes) => {
   if (request.msg === "counter-updated") {
     tabCountElement.innerText = `${request.tabCounter}`;
     totalCountElement.innerText = `${request.totalCounter}`;
+  } else if (request.msg === "sponsored-check-update") {
+    checkSponsored.checked = request.state;
+  } else if (request.msg === "suggested-check-update") {
+    checkSuggested.checked = request.state;
   }
 }
 
-function runApp() {
+async function runApp() {
   getRemovedCount();
+  const sponsored = await browser.storage.local.get("removeSponsored");
+  checkSponsored.checked = sponsored.removeSponsored
+  const suggested = await browser.storage.local.get("removeSuggested");
+  checkSuggested.checked = suggested.removeSuggested;
+  checkSponsored.addEventListener('change', sponsoredOnChange);
+  checkSuggested.addEventListener('change', suggestedOnChange);
   removeButton.onclick = removeSponsors;
   browser.runtime.onMessage.addListener(counterListener);
 }
