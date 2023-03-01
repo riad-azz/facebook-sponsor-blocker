@@ -6,7 +6,7 @@ Block and remove sponsored posts from your facebook feed with the option to togg
 
 ## Installing the extension
 
-You can get the extension from the official firefox addons website from here [Facebook Sponsor Blocker](https://addons.mozilla.org/en-US/firefox/addon/fb-sponsor-blocker/)
+You can get the extension from the official firefox addons website here -> [Facebook Sponsor Blocker](https://addons.mozilla.org/en-US/firefox/addon/fb-sponsor-blocker/)
 
 ## A simple exstension to remove sponsored posts from facebook feed
 
