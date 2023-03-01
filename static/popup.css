@@ -5,38 +5,38 @@ body {
   min-width: 300px;
 }
 
-.fsb-divider{
+.fsb-divider {
   width: 100%;
   border-bottom: 1px grey solid;
   margin-bottom: 8px;
 }
 
-.fsb-main{
+.fsb-main {
   max-width: 320px;
   padding: 4px 4px 0 4px;
 }
 
-.fsb-top{
+.fsb-top {
   display: flex;
   justify-content: start;
   align-items: center;
   margin-bottom: 4px;
 }
 
-.fsb-logo{
+.fsb-logo {
   height: 24px;
   margin-right: 8px;
   margin-bottom: 4px;
 }
 
-.fsb-title{
+.fsb-title {
   font-size: 18px;
   font-weight: bold;
   margin-right: 10px;
   user-select: none;
 }
 
-.fsb-message{
+.fsb-message {
   display: block;
   font-size: 16px;
   background-color: #3a3b3c;
@@ -46,12 +46,12 @@ body {
   margin-bottom: 8px;
 }
 
-.fsb-tab-count{
+.fsb-tab-count {
   font-size: 17px;
   float: right;
 }
 
-.fsb-total-count{
+.fsb-total-count {
   font-size: 17px;
   float: right;
 }
@@ -62,19 +62,20 @@ body {
   justify-content: center;
 }
 
-.fsb-button{
+.fsb-button {
+  flex: 1;
   align-items: center;
   appearance: none;
   background-color: #FCFCFD;
   border-radius: 12px;
   border-width: 0;
   padding: 8px 20px;
-  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px,#D6D6E7 0 -3px 0 inset;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
   box-sizing: border-box;
   color: #36395A;
   cursor: pointer;
   display: inline-flex;
-  font-family: "JetBrains Mono",monospace;
+  font-family: "JetBrains Mono", monospace;
   justify-content: center;
   line-height: 1;
   list-style: none;
@@ -82,12 +83,12 @@ body {
   position: relative;
   text-align: left;
   text-decoration: none;
-  transition: box-shadow .15s,transform .15s;
+  transition: box-shadow .15s, transform .15s;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   white-space: nowrap;
-  will-change: box-shadow,transform;
+  will-change: box-shadow, transform;
   font-size: 18px;
 }
 
