@@ -1,4 +1,4 @@
-# Facebook No Sponsored Posts - Firefox Extension
+# Facebook Sponsor Blocker - Firefox Extension
 
 Block and remove sponsored posts from your facebook feed with the option to toggle it ON or OFF and the ability to block suggested posts too.
 
