@@ -7,12 +7,8 @@ let removeSuggested;
 browser.browserAction.disable();
 
 // Set the custom badge theme color
-browser.browserAction.setBadgeBackgroundColor(
-  { color: 'grey' }
-)
-browser.browserAction.setBadgeTextColor(
-  { color: 'white' }
-)
+browser.browserAction.setBadgeBackgroundColor({ color: "grey" });
+browser.browserAction.setBadgeTextColor({ color: "white" });
 // Load total removed posts count from extension storage
 const loadSettings = async () => {
   // Total counter
@@ -21,12 +17,12 @@ const loadSettings = async () => {
     totalCount = counter.totalCount;
   } else {
     totalCount = 0;
-    await browser.storage.local.set({ "totalCount": 0 });
+    await browser.storage.local.set({ totalCount: 0 });
   }
   // Remove sponsored
   const sponsored = await browser.storage.local.get("removeSponsored");
   if (sponsored.removeSponsored === undefined) {
-    await browser.storage.local.set({ "removeSponsored": true });
+    await browser.storage.local.set({ removeSponsored: true });
     removeSponsored = true;
   } else {
     removeSponsored = sponsored.removeSponsored;
@@ -34,12 +30,12 @@ const loadSettings = async () => {
   // Remove sponsored
   const suggested = await browser.storage.local.get("removeSuggested");
   if (suggested.removeSuggested === undefined) {
-    await browser.storage.local.set({ "removeSuggested": false });
+    await browser.storage.local.set({ removeSuggested: false });
     removeSuggested = false;
   } else {
     removeSuggested = suggested.removeSuggested;
   }
-}
+};
 
 // ------ Handle runtime messages ------
 
@@ -49,17 +45,15 @@ const startTabCounter = (tabId) => {
   activeTabs[tabId] = 0;
   // Enable the pop up window for this tab
   browser.browserAction.enable(tabId);
-}
+};
 
 // Update badge text for a tab
 const updateTabBadgeText = (tabId) => {
-  browser.browserAction.setBadgeText(
-    {
-      tabId: tabId,
-      text: `${activeTabs[tabId]}`,
-    },
-  );
-}
+  browser.browserAction.setBadgeText({
+    tabId: tabId,
+    text: `${activeTabs[tabId]}`,
+  });
+};
 
 // Notify the popup page that the counter changed
 const notifyPopup = async (tabId) => {
@@ -67,84 +61,72 @@ const notifyPopup = async (tabId) => {
   const sending = browser.runtime.sendMessage({
     msg: "counter-updated",
     totalCounter: totalCount,
-    tabCounter: tabCount
+    tabCounter: tabCount,
   });
   sending.then(null, (error) => console.log("Popup page is not open"));
-}
+};
 
 // Send remove sponsor request to content script
 const removeSponsors = async (tabId) => {
-  browser.tabs.sendMessage(
-    tabId,
-    { msg: 'request-remove' }
-  );
-}
+  browser.tabs.sendMessage(tabId, { msg: "request-remove" });
+};
 
 // -- Update what posts to remove --
 const checkSponsored = async (tabId, check) => {
   if (!tabId) return;
-  browser.tabs.sendMessage(
-    tabId,
-    {
-      msg: 'request-check-sponsored',
-      state: check,
-    }
-  );
+  browser.tabs.sendMessage(tabId, {
+    msg: "request-check-sponsored",
+    state: check,
+  });
   removeSponsored = check;
-}
+};
 
 const checkSuggested = async (tabId, check) => {
   if (!tabId) return;
-  browser.tabs.sendMessage(
-    tabId,
-    {
-      msg: 'request-check-suggested',
-      state: check,
-    }
-  );
+  browser.tabs.sendMessage(tabId, {
+    msg: "request-check-suggested",
+    state: check,
+  });
   removeSuggested = check;
-}
+};
 
 // -- Manage the popup updates --
+
+// Update the counter for specified tab and the total count
 const updateCount = (tabId) => {
-  // Update the counter for specified tab and the total count
   totalCount += 1;
-  activeTabs[tabId] += 1
-  browser.storage.local.set({ "totalCount": totalCount });
+  activeTabs[tabId] += 1;
+  browser.storage.local.set({ totalCount: totalCount });
   updateTabBadgeText(tabId);
   notifyPopup(tabId);
-}
+};
 
 // onMessage Listener
 const handleOnMessage = (request, sender, sendResponse) => {
   if (request.msg === "start-counter") {
     const currentTabId = sender.tab.id;
     startTabCounter(currentTabId);
-    checkSponsored(currentTabId, removeSponsored);
-    checkSuggested(currentTabId, removeSuggested);
   } else if (request.msg === "update-counter") {
     const currentTabId = sender.tab.id;
     updateCount(currentTabId);
-  }
-  else if (request.msg === "request-counter") {
+  } else if (request.msg === "request-counter") {
     const currentTabId = request.tabId;
     response = {
       totalCounter: totalCount,
-      tabCounter: activeTabs[currentTabId]
-    }
+      tabCounter: activeTabs[currentTabId],
+    };
     sendResponse(response);
-  } else if (request.msg === 'request-remove') {
+  } else if (request.msg === "request-remove") {
     const currentTabId = request.tabId;
     removeSponsors(currentTabId);
-  } else if (request.msg === 'request-check-sponsored') {
+  } else if (request.msg === "request-check-sponsored") {
     const currentTabId = request.tabId;
     checkSponsored(currentTabId, request.state);
-  } else if (request.msg === 'request-check-suggested') {
+  } else if (request.msg === "request-check-suggested") {
     const currentTabId = request.tabId;
     checkSuggested(currentTabId, request.state);
   }
-}
-
+};
 
 // ------ Handle closed tabs -----
 // onRemoved (Tabs) Listener
@@ -152,7 +134,7 @@ const handleRemovedTabs = (tabId, removeInfo) => {
   if (tabId in activeTabs) {
     delete activeTabs[tabId];
   }
-}
+};
 
 // Main run function
 function runApp() {
