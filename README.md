@@ -21,7 +21,13 @@ Don't forget to hit the :star:, If you like this repo
 
 ## Installing the extension
 
-You can get the extension from the official firefox addons website here -> [Facebook Sponsor Blocker](https://addons.mozilla.org/en-US/firefox/addon/fb-sponsor-blocker/)
+You can get the extension from the official firefox addons website here : [Facebook Sponsor Blocker](https://addons.mozilla.org/en-US/firefox/addon/fb-sponsor-blocker/)
+
+![Extension install image](screenshots/extension-install.png)
+
+Or you can Load it as unpacked by downloading the repo then going to `about:debugging#/runtime/this-firefox` and selecting the manifest.json
+
+![Extension install image](screenshots/extension-load.png)
 
 ## License
 
