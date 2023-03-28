@@ -25,7 +25,10 @@ You can get the extension from the official firefox addons website here : [Faceb
 
 ![Extension install image](screenshots/extension-install.png)
 
-Or you can Load it as unpacked by downloading the repo then going to `about:debugging#/runtime/this-firefox` and selecting the manifest.json
+Or you can Load it as unpacked by downloading the repo then :
+ - Go to `about:debugging#/runtime/this-firefox`
+ - Press "Load Temporary Add-on"
+ - Select the manifest.json from the repo files
 
 ![Extension install image](screenshots/extension-load.png)
 
