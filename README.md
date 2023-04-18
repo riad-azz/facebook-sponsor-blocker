@@ -17,20 +17,20 @@ Don't forget to hit the :star:, If you like this repo
 - Option to toggle on/off removal of either posts
 - Manual button to remove toggled posts
 
-![Extension preview image](screenshots/extension-sc.png)
+![Extension preview image](https://github.com/riad-azz/readme-storage/blob/main/facebook-sponsor-blocker/sc-01.png?raw=true)
 
 ## Installing the extension
 
 You can get the extension from the official firefox addons website here : [Facebook Sponsor Blocker](https://addons.mozilla.org/en-US/firefox/addon/fb-sponsor-blocker/)
 
-![Extension install image](screenshots/extension-install.png)
+![Extension install image](https://github.com/riad-azz/readme-storage/blob/main/facebook-sponsor-blocker/sc-02.png?raw=true)
 
 Or you can Load it as unpacked by downloading the repo then :
  - Go to `about:debugging#/runtime/this-firefox`
  - Press "Load Temporary Add-on"
  - Select the manifest.json from the repo files
 
-![Extension install image](screenshots/extension-load.png)
+![Extension install image](https://github.com/riad-azz/readme-storage/blob/main/facebook-sponsor-blocker/sc-03.png?raw=true)
 
 ## License
 
