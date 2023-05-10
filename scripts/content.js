@@ -138,7 +138,7 @@ const handleSponsoredPosts = async (post) => {
   if (!post_id) return false;
   // Search for shadowroot with same id
   const shadowElements = await waitForElementId(post_id);
-  if (!shadowElements) return;
+  if (!shadowElements) return false;
   for (x of shadowElements) {
     if (x.textContent != "Sponsored") continue;
     // FOR DEBUG ONLY
