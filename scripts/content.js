@@ -1,20 +1,25 @@
 // ---- DEV VARS ----
 const DEBUG = false;
-const wait = (amount = 0) => new Promise(resolve => setTimeout(resolve, amount));
+const wait = (amount = 0) =>
+  new Promise((resolve) => setTimeout(resolve, amount));
 // ---- APP VARS ----
 let removing = false;
-let removeSponsoredPosts = true;
-let removeSuggestedPosts = false;
+let removeSponsoredPosts;
+let removeSuggestedPosts;
 // Constant vars
 const timelineSelector = '[role="main"]';
-const postsSelector = '.x1lliihq'
+const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const shadowParentSelector = 'div[style="position: absolute; top: -10000px;"]';
-const suggestedSelector = 'div.xcnsx8t';
+const suggestedSelector = "div.xcnsx8t";
 // TIMELINE OBSERVER
-const timelineObserverConfig = { attributes: true, childList: true, subtree: true };
+const timelineObserverConfig = {
+  attributes: true,
+  childList: true,
+  subtree: true,
+};
 const handleTimeline = (mutationList, observer) => {
   for (const mutation of mutationList) {
-    if (mutation.type === 'childList' & mutation.addedNodes.length > 0) {
+    if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
         handlePost(post);
       }
@@ -40,7 +45,7 @@ const handleLocation = (mutations) => {
       manualPostsRemoval();
     }
   });
-}
+};
 const locationObserver = new MutationObserver(handleLocation);
 // Mutable vars
 let timeline;
@@ -49,29 +54,34 @@ let currentLocation = location.href;
 // ---- Background communication ----
 // Listen to messages
 const handleBackground = (request) => {
-  if (request.msg === 'request-remove') {
+  if (request.msg === "request-remove") {
     manualPostsRemoval();
-  } else if (request.msg === 'request-check-sponsored') {
+  } else if (request.msg === "request-check-sponsored") {
     if (DEBUG) {
       console.log(`sponsored removed : ${request.state}`);
     }
     removeSponsoredPosts = request.state;
-  } else if (request.msg === 'request-check-suggested') {
+  } else if (request.msg === "request-check-suggested") {
     if (DEBUG) {
       console.log(`suggested removed : ${request.state}`);
     }
     removeSuggestedPosts = request.state;
   }
-}
+};
 // Start the tab counter
-const startTabCounter = async () => {
-  browser.runtime.sendMessage({
+const setUpTab = async () => {
+  const response = await browser.runtime.sendMessage({
     msg: "start-counter",
   });
   if (DEBUG) {
     console.log("Tab counter ready request sent from content.js");
+    console.log(response);
+    console.log("sponsored", removeSponsoredPosts);
+    console.log("suggested", removeSuggestedPosts);
   }
-}
+  removeSponsoredPosts = response.removeSponsored;
+  removeSuggestedPosts = response.removeSuggested;
+};
 // UPDATE BADGE TEXT
 const updateCounter = async () => {
   browser.runtime.sendMessage({
@@ -80,27 +90,31 @@ const updateCounter = async () => {
   if (DEBUG) {
     console.log("Badge update request sent from content.js");
   }
-}
+};
 
 // ---- Suggested posts handler ----
 const handleSuggestedPost = async (post) => {
   if (!removeSuggestedPosts) {
     if (DEBUG) {
-      console.log(`Did not remove suggested posts ${removeSuggestedPosts}`)
+      console.log(`Did not remove suggested posts ${removeSuggestedPosts}`);
     }
     return false;
   }
   const isSuggested = post.querySelector(suggestedSelector);
   if (!isSuggested) return false;
+  if (DEBUG) {
+    console.log(post);
+    console.log("Found and removed a suggested post");
+  }
   removeElement(post);
   return true;
-}
+};
 
 // ---- Sponsored posts handler ----
 const handleSponsoredPosts = async (post) => {
   if (!removeSponsoredPosts) {
     if (DEBUG) {
-      console.log(`Did not remove sponsered posts ${removeSponsoredPosts}`)
+      console.log(`Did not remove sponsered posts ${removeSponsoredPosts}`);
     }
     return false;
   }
@@ -108,13 +122,13 @@ const handleSponsoredPosts = async (post) => {
   const useElement = post.querySelector(`use[*|href]`);
   if (!useElement) return false;
   // Extract element id
-  const post_id = useElement.getAttribute("xlink:href").slice(1)
+  const post_id = useElement.getAttribute("xlink:href").slice(1);
   if (!post_id) return false;
   // Search for shadowroot with same id
   const shadowElements = await waitForElementId(post_id);
   if (!shadowElements) return false;
   for (x of shadowElements) {
-    if (x.textContent != 'Sponsored') continue;
+    if (x.textContent != "Sponsored") continue;
     // FOR DEBUG ONLY
     if (DEBUG) {
       console.log(x.textContent);
@@ -126,11 +140,10 @@ const handleSponsoredPosts = async (post) => {
     // Remove the sponsored post
     if (x.isConnected) x.id = "";
     removeElement(post);
-    await updateCounter();
     return true;
   }
   return false;
-}
+};
 
 // ---- Posts handler ----
 const handlePost = async (element) => {
@@ -138,14 +151,20 @@ const handlePost = async (element) => {
   await handleSuggestedPost(element);
   // Check if Sponsored
   await handleSponsoredPosts(element);
-}
+};
 
 // ---- UTILS ----
 const removeElement = async (element) => {
-  if (element.isConnected) await element.remove();
-}
+  if (element.isConnected) {
+    const parent = element.parentNode;
+    if (parent) {
+      parent.remove();
+      await updateCounter();
+    }
+  }
+};
 
-const manualPostsRemoval = () => {
+const manualPostsRemoval = async () => {
   if (removing) return;
   removing = true;
   // Check if any sponsored appeared before load was finished
@@ -153,7 +172,7 @@ const manualPostsRemoval = () => {
     handlePost(post);
   }
   removing = false;
-}
+};
 
 async function waitForElementId(post_id) {
   return new Promise((resolve, reject) => {
@@ -171,12 +190,12 @@ async function waitForElementId(post_id) {
 async function waitForElementSelector(selector) {
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
-      const element = document.querySelector(selector)
+      const element = document.querySelector(selector);
 
       if (element) {
         if (DEBUG) {
           // FOR DEBUG ONLY
-          console.log(`Found waited element : ${element}`)
+          console.log(`Found waited element : ${element}`);
         }
         clearInterval(interval);
         resolve(element);
@@ -198,15 +217,15 @@ const testUpdateCounter = async (times = 3, timer = 3000) => {
       }
     }, timer);
   });
-}
+};
 
 // ---- Observers Functions ----
 const observeLocation = () => {
   // GET BODY ELEMENT
-  const bodyList = document.querySelector('body');
+  const bodyList = document.querySelector("body");
   // START URL OBSERVER
   locationObserver.observe(bodyList, locationObserverConfig);
-}
+};
 
 const observeTimeline = async () => {
   // Load timeline and shadowParent Elements
@@ -216,12 +235,11 @@ const observeTimeline = async () => {
   manualPostsRemoval();
   // Observe timeline
   timelineObserver.observe(timeline, timelineObserverConfig);
-}
+};
 
-
-function runApp() {
+async function runApp() {
   // Activate Extension button
-  startTabCounter();
+  await setUpTab();
   // Start Observers
   observeTimeline();
   observeLocation();

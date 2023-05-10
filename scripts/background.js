@@ -30,8 +30,8 @@ const loadSettings = async () => {
   // Remove sponsored
   const suggested = await browser.storage.local.get("removeSuggested");
   if (suggested.removeSuggested === undefined) {
-    await browser.storage.local.set({ removeSuggested: false });
-    removeSuggested = false;
+    await browser.storage.local.set({ removeSuggested: true });
+    removeSuggested = true;
   } else {
     removeSuggested = suggested.removeSuggested;
   }
@@ -106,6 +106,11 @@ const handleOnMessage = (request, sender, sendResponse) => {
   if (request.msg === "start-counter") {
     const currentTabId = sender.tab.id;
     startTabCounter(currentTabId);
+    response = {
+      removeSponsored,
+      removeSuggested,
+    };
+    sendResponse(response);
   } else if (request.msg === "update-counter") {
     const currentTabId = sender.tab.id;
     updateCount(currentTabId);
