@@ -118,6 +118,18 @@ const handleSponsoredPosts = async (post) => {
     }
     return false;
   }
+  // Newest sponsor check by class
+  if (post.classList.contains("sponsored_ad")) {
+    // FOR DEBUG ONLY
+    if (DEBUG) {
+      console.log(post);
+      console.log("found a sponsored post");
+      console.log(`Sponsored post deleted, ID : ${post_id}`);
+    }
+    // Remove the sponsored post
+    removeElement(post);
+    return true;
+  }
   // Check if post has sponsor text holder
   const useElement = post.querySelector(`use[*|href]`);
   if (!useElement) return false;
@@ -126,7 +138,7 @@ const handleSponsoredPosts = async (post) => {
   if (!post_id) return false;
   // Search for shadowroot with same id
   const shadowElements = await waitForElementId(post_id);
-  if (!shadowElements) return false;
+  if (!shadowElements) return;
   for (x of shadowElements) {
     if (x.textContent != "Sponsored") continue;
     // FOR DEBUG ONLY
@@ -142,6 +154,7 @@ const handleSponsoredPosts = async (post) => {
     removeElement(post);
     return true;
   }
+
   return false;
 };
 
@@ -157,8 +170,10 @@ const handlePost = async (element) => {
 const removeElement = async (element) => {
   if (element.isConnected) {
     const parent = element.parentNode;
-    if (parent) {
-      parent.remove();
+    const parentTwo = parent?.parentNode;
+    const parentRoot = parentTwo?.parentNode;
+    if (parentRoot) {
+      parentRoot.remove();
       await updateCounter();
     }
   }
