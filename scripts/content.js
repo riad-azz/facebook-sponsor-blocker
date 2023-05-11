@@ -14,7 +14,8 @@ const timelineObserverConfig = {
   childList: true,
   subtree: true,
 };
-const handleTimeline = (mutationList, observer) => {
+const handleTimeline = async (mutationList, observer) => {
+  if (!timeline) await setTimeline();
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
@@ -162,11 +163,16 @@ const removeElement = async (element) => {
 const manualPostsRemoval = async () => {
   if (removing) return;
   removing = true;
+  if (!timeline) await setTimeline();
   // Check if any sponsored appeared before load was finished
   for (post of timeline.querySelectorAll(postsSelector)) {
     handlePost(post);
   }
   removing = false;
+};
+
+const setTimeline = async () => {
+  timeline = await waitForElementSelector(timelineSelector);
 };
 
 async function waitForElementId(post_id) {
@@ -223,7 +229,7 @@ const observeLocation = () => {
 
 const observeTimeline = async () => {
   // Load timeline and shadowParent Elements
-  timeline = await waitForElementSelector(timelineSelector);
+  await setTimeline();
   shadowParent = await waitForElementSelector(shadowParentSelector);
   // Remove posts manually after observer is ready
   manualPostsRemoval();
