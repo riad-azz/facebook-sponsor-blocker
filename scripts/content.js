@@ -3,9 +3,6 @@ const DEBUG = false;
 const wait = (amount = 0) =>
   new Promise((resolve) => setTimeout(resolve, amount));
 // ---- APP VARS ----
-let removing = false;
-let removeSponsoredPosts;
-let removeSuggestedPosts;
 // Constant vars
 const timelineSelector = '[role="main"]';
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
@@ -28,29 +25,12 @@ const handleTimeline = (mutationList, observer) => {
   }
 };
 const timelineObserver = new MutationObserver(handleTimeline);
-// URL CHANGE OBSERVER
-const locationObserverConfig = { childList: true, subtree: true };
-const handleLocation = (mutations) => {
-  mutations.forEach((mutation) => {
-    if (currentLocation != document.location.href) {
-      currentLocation = document.location.href;
-      if (document.location.href != "https://www.facebook.com/") {
-        // STOP TIMELINE OBSERVER
-        timelineObserver.disconnect();
-        return;
-      }
-      // START THE TIMELINE OBSERVER
-      observeTimeline();
-      // EXTRA CHECK FOR POSTS AFTER URL CHANGE
-      manualPostsRemoval();
-    }
-  });
-};
-const locationObserver = new MutationObserver(handleLocation);
 // Mutable vars
 let timeline;
 let shadowParent;
-let currentLocation = location.href;
+let removing = false;
+let removeSponsoredPosts;
+let removeSuggestedPosts;
 // ---- Background communication ----
 // Listen to messages
 const handleBackground = (request) => {
@@ -114,7 +94,7 @@ const handleSuggestedPost = async (post) => {
 const handleSponsoredPosts = async (post) => {
   if (!removeSponsoredPosts) {
     if (DEBUG) {
-      console.log(`Did not remove sponsered posts ${removeSponsoredPosts}`);
+      console.log(`Did not remove sponsored posts ${removeSponsoredPosts}`);
     }
     return false;
   }
@@ -206,7 +186,6 @@ async function waitForElementSelector(selector) {
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
       const element = document.querySelector(selector);
-
       if (element) {
         if (DEBUG) {
           // FOR DEBUG ONLY
@@ -215,7 +194,7 @@ async function waitForElementSelector(selector) {
         clearInterval(interval);
         resolve(element);
       }
-    }, 50);
+    }, 500);
   });
 }
 
@@ -257,7 +236,6 @@ async function runApp() {
   await setUpTab();
   // Start Observers
   observeTimeline();
-  observeLocation();
   // Start Background Listener
   browser.runtime.onMessage.addListener(handleBackground);
 }
