@@ -8,30 +8,12 @@ const timelineSelector = '[role="main"]';
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const shadowParentSelector = 'div[style="position: absolute; top: -10000px;"]';
 const suggestedSelector = "div.xcnsx8t";
-// TIMELINE OBSERVER
-const timelineObserverConfig = {
-  attributes: true,
-  childList: true,
-  subtree: true,
-};
-const handleTimeline = async (mutationList, observer) => {
-  if (!timeline) await setTimeline();
-  for (const mutation of mutationList) {
-    if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
-      for (post of timeline.querySelectorAll(postsSelector)) {
-        handlePost(post);
-      }
-      break;
-    }
-  }
-};
-const timelineObserver = new MutationObserver(handleTimeline);
 // Mutable vars
 let timeline;
 let shadowParent;
 let removing = false;
-let removeSponsoredPosts;
-let removeSuggestedPosts;
+let removeSponsoredPosts = true;
+let removeSuggestedPosts = true;
 // ---- Background communication ----
 // Listen to messages
 const handleBackground = (request) => {
@@ -220,20 +202,30 @@ const testUpdateCounter = async (times = 3, timer = 3000) => {
 };
 
 // ---- Observers Functions ----
-const observeLocation = () => {
-  // GET BODY ELEMENT
-  const bodyList = document.querySelector("body");
-  // START URL OBSERVER
-  locationObserver.observe(bodyList, locationObserverConfig);
-};
-
 const observeTimeline = async () => {
   // Load timeline and shadowParent Elements
   await setTimeline();
   shadowParent = await waitForElementSelector(shadowParentSelector);
   // Remove posts manually after observer is ready
   manualPostsRemoval();
-  // Observe timeline
+  // TIMELINE OBSERVER
+  const timelineObserverConfig = {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  };
+  const handleTimeline = async (mutationList, observer) => {
+    if (!timeline) await setTimeline();
+    for (const mutation of mutationList) {
+      if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
+        for (post of timeline.querySelectorAll(postsSelector)) {
+          handlePost(post);
+        }
+        break;
+      }
+    }
+  };
+  const timelineObserver = new MutationObserver(handleTimeline);
   timelineObserver.observe(timeline, timelineObserverConfig);
 };
 
