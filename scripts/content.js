@@ -14,6 +14,7 @@ let shadowParent;
 let removing = false;
 let removeSponsoredPosts = true;
 let removeSuggestedPosts = true;
+let currentLocation = document.location.href;
 // ---- Background communication ----
 // Listen to messages
 const handleBackground = (request) => {
@@ -208,32 +209,61 @@ const observeTimeline = async () => {
   shadowParent = await waitForElementSelector(shadowParentSelector);
   // Remove posts manually after observer is ready
   manualPostsRemoval();
-  // TIMELINE OBSERVER
-  const timelineObserverConfig = {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  };
-  const handleTimeline = async (mutationList, observer) => {
-    if (!timeline) await setTimeline();
-    for (const mutation of mutationList) {
-      if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
-        for (post of timeline.querySelectorAll(postsSelector)) {
-          handlePost(post);
-        }
-        break;
-      }
-    }
-  };
-  const timelineObserver = new MutationObserver(handleTimeline);
   timelineObserver.observe(timeline, timelineObserverConfig);
 };
+const observeLocation = async () => {
+  // URL CHANGE OBSERVER
+  const bodyList = document.querySelector("body");
+  locationObserver.observe(bodyList, locationObserverConfig);
+};
+// ---- OBSERVERS ----
+// Location observer
+const locationObserverConfig = { childList: true, subtree: true };
+const handleLocation = (mutations) => {
+  mutations.forEach((mutation) => {
+    if (currentLocation != document.location.href) {
+      currentLocation = document.location.href;
+      if (document.location.href != "https://www.facebook.com/") {
+        // STOP TIMELINE OBSERVER
+        timelineObserver.disconnect();
+        return;
+      }
+      // START THE TIMELINE OBSERVER
+      observeTimeline();
+      // EXTRA CHECK FOR POSTS AFTER URL CHANGE
+      manualPostsRemoval();
+    }
+  });
+};
+const locationObserver = new MutationObserver(handleLocation);
+// Timeline observer
+const timelineObserverConfig = {
+  attributes: true,
+  childList: true,
+  subtree: true,
+};
+const handleTimeline = async (mutationList, observer) => {
+  if (!timeline) await setTimeline();
+  for (const mutation of mutationList) {
+    if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
+      for (post of timeline.querySelectorAll(postsSelector)) {
+        handlePost(post);
+      }
+      break;
+    }
+  }
+};
+const timelineObserver = new MutationObserver(handleTimeline);
 
+// ---- MAIN ----
 async function runApp() {
   // Activate Extension button
   await setUpTab();
   // Start Observers
-  observeTimeline();
+  if (currentLocation === "https://www.facebook.com/") {
+    observeTimeline();
+  }
+  observeLocation();
   // Start Background Listener
   browser.runtime.onMessage.addListener(handleBackground);
 }
