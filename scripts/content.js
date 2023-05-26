@@ -1,16 +1,16 @@
 // ---- DEV VARS ----
-const DEBUG = false;
+const DEBUG = true;
 const wait = (amount = 0) =>
   new Promise((resolve) => setTimeout(resolve, amount));
 // ---- APP VARS ----
 // Constant vars
 const timelineSelector = '[role="main"]';
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
-const shadowParentSelector = 'div[style="position: absolute; top: -10000px;"]';
+const tagSelector =
+  ".xmper1u.xt0psk2.xjb2p0i.x1qlqyl8.x15bjb6t.x1n2onr6.x17ihmo5.x1g77sc7";
 const suggestedSelector = "div.xcnsx8t";
 // Mutable vars
 let timeline;
-let shadowParent;
 let removing = false;
 let removeSponsoredPosts = true;
 let removeSuggestedPosts = true;
@@ -95,26 +95,19 @@ const handleSponsoredPosts = async (post) => {
     return true;
   }
   // Check if post has sponsor text holder
-  const useElement = post.querySelector(`use[*|href]`);
-  if (!useElement) return false;
+  const tagElement = post.querySelector(tagSelector);
+  if (!tagElement) return false;
   // Extract element id
-  const post_id = useElement.getAttribute("xlink:href").slice(1);
-  if (!post_id) return false;
-  // Search for shadowroot with same id
-  const shadowElements = await waitForElementId(post_id);
-  if (!shadowElements) return false;
-  for (x of shadowElements) {
-    if (x.textContent != "Sponsored") continue;
-    // FOR DEBUG ONLY
+  const validLetters = tagElement.querySelectorAll(":not(.edxC)");
+  const textArray = Array.from(validLetters).map((node) => node.textContent);
+  const combination = textArray.join("");
+  const isSponsored = isSponsoredPost(combination);
+  if (isSponsored) {
     if (DEBUG) {
-      console.log(x.textContent);
       console.log(post);
-      console.log(post_id);
       console.log("found a sponsored post");
-      console.log(`Sponsored post deleted, ID : ${post_id}`);
     }
     // Remove the sponsored post
-    if (x.isConnected) x.id = "";
     removeElement(post);
     return true;
   }
@@ -133,14 +126,34 @@ const handlePost = async (element) => {
 // ---- UTILS ----
 const removeElement = async (element) => {
   if (element.isConnected) {
-    const parent = element.parentNode;
-    const parentTwo = parent?.parentNode;
-    const parentRoot = parentTwo?.parentNode;
-    if (parentRoot) {
-      parentRoot.remove();
-      await updateCounter();
+    const parent = element.closest(".x1lliihq");
+    if (parent) {
+      parent.remove();
+    } else {
+      element.remove();
     }
+    await updateCounter();
   }
+};
+
+const isSponsoredPost = (combination) => {
+  const word = "Sponsored";
+  const combinationFrequency = {};
+
+  // Calculate frequency of letters in the combination
+  for (const char of combination) {
+    combinationFrequency[char] = (combinationFrequency[char] || 0) + 1;
+  }
+
+  // Check if the combination can form the word
+  for (const char of word) {
+    if (!combinationFrequency[char] || combinationFrequency[char] === 0) {
+      return false;
+    }
+    combinationFrequency[char]--;
+  }
+
+  return true;
 };
 
 const manualPostsRemoval = async () => {
@@ -157,19 +170,6 @@ const manualPostsRemoval = async () => {
 const setTimeline = async () => {
   timeline = await waitForElementSelector(timelineSelector);
 };
-
-async function waitForElementId(post_id) {
-  return new Promise((resolve, reject) => {
-    const interval = setInterval(function () {
-      const elements = shadowParent.querySelectorAll(`[id=${post_id}]`);
-
-      if (elements) {
-        clearInterval(interval);
-        resolve(elements);
-      }
-    }, 10);
-  });
-}
 
 async function waitForElementSelector(selector) {
   return new Promise((resolve, reject) => {
@@ -204,9 +204,8 @@ const testUpdateCounter = async (times = 3, timer = 3000) => {
 
 // ---- Observers Functions ----
 const observeTimeline = async () => {
-  // Load timeline and shadowParent Elements
+  // Load timeline Elements
   await setTimeline();
-  shadowParent = await waitForElementSelector(shadowParentSelector);
   // Remove posts manually after observer is ready
   manualPostsRemoval();
   timelineObserver.observe(timeline, timelineObserverConfig);
@@ -260,9 +259,7 @@ async function runApp() {
   // Activate Extension button
   await setUpTab();
   // Start Observers
-  if (currentLocation === "https://www.facebook.com/") {
-    observeTimeline();
-  }
+  observeTimeline();
   observeLocation();
   // Start Background Listener
   browser.runtime.onMessage.addListener(handleBackground);
