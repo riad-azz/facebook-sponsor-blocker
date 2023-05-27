@@ -6,7 +6,7 @@
   },
   "manifest_version": 2,
   "name": "Facebook Sponsor Blocker",
-  "version": "6.0.1",
+  "version": "6.1.0",
   "description": "A extension to remove facebook sponsored posts.",
   "icons": {
     "32": "icons/fb-ads-32.png",

@@ -1,5 +1,5 @@
 // ---- DEV VARS ----
-const DEBUG = true;
+const DEBUG = false;
 const wait = (amount = 0) =>
   new Promise((resolve) => setTimeout(resolve, amount));
 // ---- APP VARS ----
@@ -8,9 +8,15 @@ const removeSponsoredPosts = true;
 const removeSuggestedPosts = true;
 const timelineSelector = '[role="main"]';
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
-const tagSelector =
-  ".xmper1u.xt0psk2.xjb2p0i.x1qlqyl8.x15bjb6t.x1n2onr6.x17ihmo5.x1g77sc7";
 const suggestedSelector = "div.xcnsx8t";
+const anchorSelector = "div > div > span > span > span > span > a";
+const combinationFilter = [
+  "स्पॉन्सर्ड",
+  "مُموَّل",
+  "赞助内容",
+  "広告",
+  "دارای پشتیبانی مالی",
+];
 // Mutable vars
 let timeline;
 let removing = false;
@@ -37,7 +43,9 @@ const handleSuggestedPost = async (post) => {
     return false;
   } else if (!removeSuggestedPosts) {
     if (DEBUG) {
-      console.log(`Did not remove suggested posts ${removeSuggestedPosts}`);
+      console.log(
+        `Suggested posts removal is disabled : ${removeSuggestedPosts}`
+      );
     }
     return false;
   }
@@ -53,44 +61,50 @@ const handleSuggestedPost = async (post) => {
 const handleSponsoredPosts = async (post) => {
   if (!removeSponsoredPosts) {
     if (DEBUG) {
-      console.log(`Did not remove sponsored posts ${removeSponsoredPosts}`);
+      console.log(
+        `Sponsored posts removal is disabled :  ${removeSponsoredPosts}`
+      );
     }
     return false;
   }
-  // Newest sponsor check by class
-  if (post.classList.contains("sponsored_ad")) {
-    // FOR DEBUG ONLY
+
+  // sponsor check by anchor text
+  const anchorElement = post.querySelector(anchorSelector);
+  if (!anchorElement) {
     if (DEBUG) {
       console.log(post);
-      console.log("found a sponsored post");
-      console.log(`Sponsored post deleted, ID : ${post_id}`);
+      console.log("Anchor element not found");
     }
-    // Remove the sponsored post
+    return false;
+  }
+
+  if (combinationFilter.includes(anchorElement.textContent)) {
     removeElement(post);
     return true;
   }
-  // Check if post has sponsor text holder
-  const tagElement = post.querySelector(tagSelector);
-  if (!tagElement) return false;
 
-  // Extract element id
+  // sponsor check combination
+  const tagElement = anchorElement.querySelector("span > span > span");
+  if (!tagElement) {
+    if (DEBUG) {
+      console.log(post);
+      console.log("Tag element not found");
+    }
+    return false;
+  }
   const tagChildren = tagElement.querySelectorAll("span");
   const validChildren = Array.from(tagChildren).filter((child) => {
     const computedStyle = window.getComputedStyle(child);
     const positionStyle = computedStyle.getPropertyValue("position");
     return positionStyle === "relative";
   });
+
   const textArray = Array.from(validChildren).map((node) => node.textContent);
   const combination = textArray.join("");
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
-    if (DEBUG) {
-      console.log(post);
-      console.log("combination: ", combination);
-      console.log("found a sponsored post");
-    }
-    // Remove the sponsored post
-    removeElement(post);
+    console.log("combination: ", combination);
+    handlePostRemoval(post);
     return true;
   }
 
@@ -105,35 +119,32 @@ const handlePost = async (element) => {
   await handleSponsoredPosts(element);
 };
 
+const handlePostRemoval = (post) => {
+  if (DEBUG) {
+    console.log(post);
+    console.log("found a sponsored post");
+  }
+
+  // Remove the sponsored post
+  removeElement(post);
+};
+
 // ---- UTILS ----
 const removeElement = async (element) => {
   if (element.isConnected) {
-    const parent = element.closest(".x1lliihq");
-    if (parent) {
-      parent.remove();
-    } else {
-      element.remove();
-    }
+    element.remove();
     await updateCounter();
   }
 };
 
 const isSponsoredPost = (combination) => {
-  const word = "Sponsored";
-  const combinationFrequency = {};
+  const numRegex = /\d/;
+  if (numRegex.test(combination)) return false;
 
-  // Calculate frequency of letters in the combination
-  for (const char of combination) {
-    combinationFrequency[char] = (combinationFrequency[char] || 0) + 1;
-  }
+  const spaceRegex = /\s/;
+  if (spaceRegex.test(combination)) return false;
 
-  // Check if the combination can form the word
-  for (const char of word) {
-    if (!combinationFrequency[char] || combinationFrequency[char] === 0) {
-      return false;
-    }
-    combinationFrequency[char]--;
-  }
+  if (combination.length <= 1) return false;
 
   return true;
 };
@@ -160,7 +171,7 @@ async function waitForElementSelector(selector) {
       if (element) {
         if (DEBUG) {
           // FOR DEBUG ONLY
-          console.log(`Found waited element : ${element}`);
+          console.log(`Found waited element :`, element);
         }
         clearInterval(interval);
         resolve(element);
