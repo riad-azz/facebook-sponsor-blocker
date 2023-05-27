@@ -1,14 +1,11 @@
 // -- App vars --
 const activeTabs = {};
-let totalCount;
-let removeSponsored;
-let removeSuggested;
-// Disable Extension button
-browser.browserAction.disable();
+let totalCount = 0;
 
 // Set the custom badge theme color
 browser.browserAction.setBadgeBackgroundColor({ color: "grey" });
 browser.browserAction.setBadgeTextColor({ color: "white" });
+
 // Load total removed posts count from extension storage
 const loadSettings = async () => {
   // Total counter
@@ -16,24 +13,7 @@ const loadSettings = async () => {
   if (counter.totalCount) {
     totalCount = counter.totalCount;
   } else {
-    totalCount = 0;
     await browser.storage.local.set({ totalCount: 0 });
-  }
-  // Remove sponsored
-  const sponsored = await browser.storage.local.get("removeSponsored");
-  if (sponsored.removeSponsored === undefined) {
-    await browser.storage.local.set({ removeSponsored: true });
-    removeSponsored = true;
-  } else {
-    removeSponsored = sponsored.removeSponsored;
-  }
-  // Remove sponsored
-  const suggested = await browser.storage.local.get("removeSuggested");
-  if (suggested.removeSuggested === undefined) {
-    await browser.storage.local.set({ removeSuggested: true });
-    removeSuggested = true;
-  } else {
-    removeSuggested = suggested.removeSuggested;
   }
 };
 
@@ -43,12 +23,10 @@ const loadSettings = async () => {
 const startTabCounter = (tabId) => {
   // Start the counter
   activeTabs[tabId] = 0;
-  // Enable the pop up window for this tab
-  browser.browserAction.enable(tabId);
 };
 
 // Update badge text for a tab
-const updateTabBadgeText = (tabId) => {
+const updateTabBadgeCounter = (tabId) => {
   browser.browserAction.setBadgeText({
     tabId: tabId,
     text: `${activeTabs[tabId]}`,
@@ -56,80 +34,42 @@ const updateTabBadgeText = (tabId) => {
 };
 
 // Notify the popup page that the counter changed
-const notifyPopup = async (tabId) => {
+const updatePopupCounter = async (tabId) => {
   tabCount = activeTabs[tabId];
   const sending = browser.runtime.sendMessage({
-    msg: "counter-updated",
+    title: "counter-updated",
     totalCounter: totalCount,
     tabCounter: tabCount,
   });
   sending.then(null, (error) => console.log("Popup page is not open"));
 };
 
-// Send remove sponsor request to content script
-const removeSponsors = async (tabId) => {
-  browser.tabs.sendMessage(tabId, { msg: "request-remove" });
-};
-
-// -- Update what posts to remove --
-const checkSponsored = async (tabId, check) => {
-  if (!tabId) return;
-  browser.tabs.sendMessage(tabId, {
-    msg: "request-check-sponsored",
-    state: check,
-  });
-  removeSponsored = check;
-};
-
-const checkSuggested = async (tabId, check) => {
-  if (!tabId) return;
-  browser.tabs.sendMessage(tabId, {
-    msg: "request-check-suggested",
-    state: check,
-  });
-  removeSuggested = check;
-};
-
 // -- Manage the popup updates --
 
 // Update the counter for specified tab and the total count
-const updateCount = (tabId) => {
+const updateCounter = (tabId) => {
   totalCount += 1;
   activeTabs[tabId] += 1;
   browser.storage.local.set({ totalCount: totalCount });
-  updateTabBadgeText(tabId);
-  notifyPopup(tabId);
+  updateTabBadgeCounter(tabId);
+  updatePopupCounter(tabId);
 };
 
 // onMessage Listener
 const handleOnMessage = (request, sender, sendResponse) => {
-  if (request.msg === "start-counter") {
+  if (request.title === "start-tab-counter") {
     const currentTabId = sender.tab.id;
     startTabCounter(currentTabId);
-    response = {
-      removeSponsored,
-      removeSuggested,
-    };
-    sendResponse(response);
-  } else if (request.msg === "update-counter") {
+  } else if (request.title === "update-counter") {
     const currentTabId = sender.tab.id;
-    updateCount(currentTabId);
-  } else if (request.msg === "request-counter") {
+    updateCounter(currentTabId);
+  } else if (request.title === "get-counter") {
     const currentTabId = request.tabId;
     response = {
       totalCounter: totalCount,
       tabCounter: activeTabs[currentTabId],
     };
     sendResponse(response);
-  } else if (request.msg === "request-remove") {
-    const currentTabId = request.tabId;
-    removeSponsors(currentTabId);
-  } else if (request.msg === "request-check-sponsored") {
-    const currentTabId = request.tabId;
-    checkSponsored(currentTabId, request.state);
-  } else if (request.msg === "request-check-suggested") {
-    const currentTabId = request.tabId;
-    checkSuggested(currentTabId, request.state);
   }
 };
 

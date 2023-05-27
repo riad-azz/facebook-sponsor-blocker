@@ -4,6 +4,8 @@ const wait = (amount = 0) =>
   new Promise((resolve) => setTimeout(resolve, amount));
 // ---- APP VARS ----
 // Constant vars
+const removeSponsoredPosts = true;
+const removeSuggestedPosts = true;
 const timelineSelector = '[role="main"]';
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const tagSelector =
@@ -12,45 +14,17 @@ const suggestedSelector = "div.xcnsx8t";
 // Mutable vars
 let timeline;
 let removing = false;
-let removeSponsoredPosts = true;
-let removeSuggestedPosts = true;
 let currentLocation = document.location.href;
-// ---- Background communication ----
-// Listen to messages
-const handleBackground = (request) => {
-  if (request.msg === "request-remove") {
-    manualPostsRemoval();
-  } else if (request.msg === "request-check-sponsored") {
-    if (DEBUG) {
-      console.log(`sponsored removed : ${request.state}`);
-    }
-    removeSponsoredPosts = request.state;
-  } else if (request.msg === "request-check-suggested") {
-    if (DEBUG) {
-      console.log(`suggested removed : ${request.state}`);
-    }
-    removeSuggestedPosts = request.state;
-  }
-};
 // Start the tab counter
-const setUpTab = async () => {
-  const response = await browser.runtime.sendMessage({
-    msg: "start-counter",
-  });
+const startTabCounter = async () => {
+  await browser.runtime.sendMessage({ title: "start-tab-counter" });
   if (DEBUG) {
     console.log("Tab counter ready request sent from content.js");
-    console.log(response);
-    console.log("sponsored", removeSponsoredPosts);
-    console.log("suggested", removeSuggestedPosts);
   }
-  removeSponsoredPosts = response.removeSponsored;
-  removeSuggestedPosts = response.removeSuggested;
 };
 // UPDATE BADGE TEXT
 const updateCounter = async () => {
-  browser.runtime.sendMessage({
-    msg: "update-counter",
-  });
+  browser.runtime.sendMessage({ title: "update-counter" });
   if (DEBUG) {
     console.log("Badge update request sent from content.js");
   }
@@ -58,14 +32,15 @@ const updateCounter = async () => {
 
 // ---- Suggested posts handler ----
 const handleSuggestedPost = async (post) => {
-  if (!removeSuggestedPosts) {
+  const isSuggested = post.querySelector(suggestedSelector);
+  if (!isSuggested) {
+    return false;
+  } else if (!removeSuggestedPosts) {
     if (DEBUG) {
       console.log(`Did not remove suggested posts ${removeSuggestedPosts}`);
     }
     return false;
   }
-  const isSuggested = post.querySelector(suggestedSelector);
-  if (!isSuggested) return false;
   if (DEBUG) {
     console.log(post);
     console.log("Found and removed a suggested post");
@@ -97,14 +72,21 @@ const handleSponsoredPosts = async (post) => {
   // Check if post has sponsor text holder
   const tagElement = post.querySelector(tagSelector);
   if (!tagElement) return false;
+
   // Extract element id
-  const validLetters = tagElement.querySelectorAll(":not(.edxC)");
-  const textArray = Array.from(validLetters).map((node) => node.textContent);
+  const tagChildren = tagElement.querySelectorAll("span");
+  const validChildren = Array.from(tagChildren).filter((child) => {
+    const computedStyle = window.getComputedStyle(child);
+    const positionStyle = computedStyle.getPropertyValue("position");
+    return positionStyle === "relative";
+  });
+  const textArray = Array.from(validChildren).map((node) => node.textContent);
   const combination = textArray.join("");
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
     if (DEBUG) {
       console.log(post);
+      console.log("combination: ", combination);
       console.log("found a sponsored post");
     }
     // Remove the sponsored post
@@ -156,7 +138,7 @@ const isSponsoredPost = (combination) => {
   return true;
 };
 
-const manualPostsRemoval = async () => {
+const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
   if (!timeline) await setTimeline();
@@ -207,7 +189,7 @@ const observeTimeline = async () => {
   // Load timeline Elements
   await setTimeline();
   // Remove posts manually after observer is ready
-  manualPostsRemoval();
+  scanAllPosts();
   timelineObserver.observe(timeline, timelineObserverConfig);
 };
 const observeLocation = async () => {
@@ -230,7 +212,7 @@ const handleLocation = (mutations) => {
       // START THE TIMELINE OBSERVER
       observeTimeline();
       // EXTRA CHECK FOR POSTS AFTER URL CHANGE
-      manualPostsRemoval();
+      scanAllPosts();
     }
   });
 };
@@ -257,12 +239,10 @@ const timelineObserver = new MutationObserver(handleTimeline);
 // ---- MAIN ----
 async function runApp() {
   // Activate Extension button
-  await setUpTab();
+  await startTabCounter();
   // Start Observers
   observeTimeline();
   observeLocation();
-  // Start Background Listener
-  browser.runtime.onMessage.addListener(handleBackground);
 }
 
 runApp();

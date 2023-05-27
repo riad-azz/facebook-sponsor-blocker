@@ -1,38 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="popup.css">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
     <title>Facebook Sponsor Blocker</title>
   </head>
   <body>
-    <div class="fsb-main">
-      <div class="fsb-top">
-        <img class="fsb-logo" src="popup.png">
+    <main class="fsb-main">
+      <header class="fsb-top">
+        <img class="fsb-logo" src="popup.png" />
         <div class="fsb-title">Facebook Sponsor Blocker</div>
-      </div>
+      </header>
       <div class="fsb-divider"></div>
-      <div class="fsb-message">Blocked on this page <span class="fsb-tab-count"></span></div>
-      <div class="fsb-message">Blocked since install <span
-          class="fsb-total-count"></span></div>
-      <div class="fsb-divider"></div>
+      <div class="fsb-description">Blocks Sponsored and Suggested posts</div>
       <div class="fsb-message">
-        <input type="checkbox" id="sponsored-posts">
-        <label for="sponsored-posts">Remove Sponsored Posts</label>
+        Blocked on this page
+        <span id="fsb-tab-count" class="fsb-counter-text">0</span>
       </div>
       <div class="fsb-message">
-        <input type="checkbox" id="suggested-posts">
-        <label for="suggested-posts">Remove Suggested Posts</label>
+        Blocked since install
+        <span id="fsb-total-count" class="fsb-counter-text">0</span>
       </div>
       <div class="fsb-divider"></div>
-      <div class="fsb-btn-container">
-        <button class="fsb-button" title="Remove posts that weren't detected manualy">
-          Remove Posts
-        </button>
+      <div class="fsb-author">
+        <a
+          href="https://github.com/riad-azz/facebook-sponsor-blocker/issues"
+          target="_blank"
+        >
+          <span class="fsb-author-refer">Send Feedback</span>
+        </a>
       </div>
-    </div>
+    </main>
     <script src="popup.js"></script>
   </body>
 </html>

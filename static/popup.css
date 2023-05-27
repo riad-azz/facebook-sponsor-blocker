@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   color: white;
@@ -36,6 +40,11 @@ body {
   user-select: none;
 }
 
+.fsb-description {
+  text-align: center;
+  padding-bottom: 10px;
+}
+
 .fsb-message {
   display: block;
   font-size: 16px;
@@ -46,57 +55,41 @@ body {
   margin-bottom: 8px;
 }
 
-.fsb-tab-count {
+.fsb-counter-text {
   font-size: 17px;
   float: right;
 }
 
-.fsb-total-count {
-  font-size: 17px;
-  float: right;
-}
-
-.fsb-btn-container {
+.fsb-author-container {
   display: flex;
+  gap: 4px;
   width: 100%;
-  justify-content: center;
-}
-
-.fsb-button {
-  flex: 1;
   align-items: center;
-  appearance: none;
-  background-color: #FCFCFD;
-  border-radius: 12px;
-  border-width: 0;
-  padding: 8px 20px;
-  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
-  box-sizing: border-box;
-  color: #36395A;
-  cursor: pointer;
-  display: inline-flex;
-  font-family: "JetBrains Mono", monospace;
+  justify-content: space-between;
+  padding: 4px 10px;
+  line-height: 1.5;
+}
+
+.fsb-author-refer {
+  font-size: 16px;
+  text-decoration: none !important;
+}
+
+.fsb-author {
+  display: flex;
+  color: white !important;
   justify-content: center;
-  line-height: 1;
-  list-style: none;
-  overflow: hidden;
-  position: relative;
-  text-align: left;
+  width: 100%;
+  font-size: 14px;
+}
+
+.fsb-author:hover {
+  text-decoration: underline;
+}
+
+a,
+a:active,
+a:visited {
+  color: white !important;
   text-decoration: none;
-  transition: box-shadow .15s, transform .15s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  white-space: nowrap;
-  will-change: box-shadow, transform;
-  font-size: 18px;
-}
-
-.fsb-button:focus {
-  box-shadow: #D6D6E7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
-}
-
-.fsb-button:active {
-  box-shadow: #D6D6E7 0 3px 7px inset;
-  transform: translateY(2px);
 }
