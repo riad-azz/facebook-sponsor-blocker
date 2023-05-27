@@ -1,4 +1,4 @@
-// -- App vars --
+// Background variables
 const activeTabs = {};
 let totalCount = 0;
 
@@ -7,8 +7,7 @@ browser.browserAction.setBadgeBackgroundColor({ color: "grey" });
 browser.browserAction.setBadgeTextColor({ color: "white" });
 
 // Load total removed posts count from extension storage
-const loadSettings = async () => {
-  // Total counter
+const loadStoredVariables = async () => {
   const counter = await browser.storage.local.get("totalCount");
   if (counter.totalCount) {
     totalCount = counter.totalCount;
@@ -17,11 +16,8 @@ const loadSettings = async () => {
   }
 };
 
-// ------ Handle runtime messages ------
-
-// Start count for the specified tab and enable the browser action
+// Start count for the specified active tab
 const startTabCounter = (tabId) => {
-  // Start the counter
   activeTabs[tabId] = 0;
 };
 
@@ -44,8 +40,6 @@ const updatePopupCounter = async (tabId) => {
   sending.then(null, (error) => console.log("Popup page is not open"));
 };
 
-// -- Manage the popup updates --
-
 // Update the counter for specified tab and the total count
 const updateCounter = (tabId) => {
   totalCount += 1;
@@ -55,7 +49,7 @@ const updateCounter = (tabId) => {
   updatePopupCounter(tabId);
 };
 
-// onMessage Listener
+// On message listener ( from content and popup scripts )
 const handleOnMessage = (request, sender, sendResponse) => {
   if (request.title === "start-tab-counter") {
     const currentTabId = sender.tab.id;
@@ -73,18 +67,17 @@ const handleOnMessage = (request, sender, sendResponse) => {
   }
 };
 
-// ------ Handle closed tabs -----
-// onRemoved (Tabs) Listener
+// On close tab listener
 const handleRemovedTabs = (tabId, removeInfo) => {
   if (tabId in activeTabs) {
     delete activeTabs[tabId];
   }
 };
 
-// Main run function
+// ------ MAIN -----
 function runApp() {
   // Set up app variables
-  loadSettings();
+  loadStoredVariables();
   // Add event listeners
   browser.runtime.onMessage.addListener(handleOnMessage);
   browser.tabs.onRemoved.addListener(handleRemovedTabs);

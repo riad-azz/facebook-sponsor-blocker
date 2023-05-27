@@ -1,84 +1,94 @@
-// ---- DEV VARS ----
+// ---- DEV UTILS ----
 const DEBUG = false;
-const wait = (amount = 0) =>
-  new Promise((resolve) => setTimeout(resolve, amount));
+
+// Custom console log
+const debugLogger = (...args) => {
+  // Show debugging info in the console only if DEBUG is set to true
+  if (DEBUG) {
+    console.log(...args);
+  }
+};
+
 // ---- APP VARS ----
-// Constant vars
+
+// Constant variables
 const removeSponsoredPosts = true;
 const removeSuggestedPosts = true;
-const timelineSelector = '[role="main"]';
-const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
-const suggestedSelector = "div.xcnsx8t";
-const anchorSelector = "div > div > span > span > span > span > a";
-const combinationFilter = [
+const sponsorWordsFilter = [
   "स्पॉन्सर्ड",
   "مُموَّل",
   "赞助内容",
   "広告",
   "دارای پشتیبانی مالی",
+  "La maalgeliyey",
+  "Geborg",
+  "Reklam",
+  "Ditaja",
+  "Kanthi Sponsor",
+  "Paeroniet",
+  "Patrocinat",
+  "Spunsurizatu",
+  "Noddwyd",
+  "Babestua",
+  "May Sponsor",
+  "Yoɓanaama",
+  "Sponsorizât",
+  "Stuðlað",
+  "Urraithe",
 ];
-// Mutable vars
+
+// Mutable variables
 let timeline;
 let removing = false;
 let currentLocation = document.location.href;
-// Start the tab counter
+
+// Selector variables
+const timelineSelector = '[role="main"]';
+const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
+const suggestedSelector = "div.xcnsx8t";
+const anchorSelector = "div > div > span > span > span > span > a";
+
+// ---- BACKGROUND SCRIPT COMMUNICATION ----
+
+// Start the current tab counter
 const startTabCounter = async () => {
   await browser.runtime.sendMessage({ title: "start-tab-counter" });
-  if (DEBUG) {
-    console.log("Tab counter ready request sent from content.js");
-  }
-};
-// UPDATE BADGE TEXT
-const updateCounter = async () => {
-  browser.runtime.sendMessage({ title: "update-counter" });
-  if (DEBUG) {
-    console.log("Badge update request sent from content.js");
-  }
+  debugLogger("Tab counter ready request sent from content.js");
 };
 
-// ---- Suggested posts handler ----
+// Update the extension badge counter text
+const updateCounter = async () => {
+  browser.runtime.sendMessage({ title: "update-counter" });
+  debugLogger("Badge update request sent from content.js");
+};
+
+// ---- SUGGESTED POSTS REMOVAL LOGIC ----
 const handleSuggestedPost = async (post) => {
   const isSuggested = post.querySelector(suggestedSelector);
   if (!isSuggested) {
     return false;
-  } else if (!removeSuggestedPosts) {
-    if (DEBUG) {
-      console.log(
-        `Suggested posts removal is disabled : ${removeSuggestedPosts}`
-      );
-    }
+  }
+  if (!removeSuggestedPosts) {
+    debugLogger(
+      `Suggested posts removal is disabled : ${removeSuggestedPosts}`
+    );
     return false;
   }
-  if (DEBUG) {
-    console.log(post);
-    console.log("Found and removed a suggested post");
-  }
+
   removeElement(post);
   return true;
 };
 
-// ---- Sponsored posts handler ----
-const handleSponsoredPosts = async (post) => {
-  if (!removeSponsoredPosts) {
-    if (DEBUG) {
-      console.log(
-        `Sponsored posts removal is disabled :  ${removeSponsoredPosts}`
-      );
-    }
-    return false;
-  }
-
+// ---- SPONSORED POSTS REMOVAL LOGIC ----
+const handleSponsoredPost = async (post) => {
   // sponsor check by anchor text
   const anchorElement = post.querySelector(anchorSelector);
   if (!anchorElement) {
-    if (DEBUG) {
-      console.log(post);
-      console.log("Anchor element not found");
-    }
+    debugLogger("Anchor element not found on post:", post);
     return false;
   }
 
-  if (combinationFilter.includes(anchorElement.textContent)) {
+  if (sponsorWordsFilter.includes(anchorElement.textContent)) {
     removeElement(post);
     return true;
   }
@@ -86,10 +96,7 @@ const handleSponsoredPosts = async (post) => {
   // sponsor check combination
   const tagElement = anchorElement.querySelector("span > span > span");
   if (!tagElement) {
-    if (DEBUG) {
-      console.log(post);
-      console.log("Tag element not found");
-    }
+    debugLogger("Tag element not found on post:", post);
     return false;
   }
   const tagChildren = tagElement.querySelectorAll("span");
@@ -103,36 +110,69 @@ const handleSponsoredPosts = async (post) => {
   const combination = textArray.join("");
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
-    console.log("combination: ", combination);
-    handlePostRemoval(post);
+    debugLogger("combination:", combination);
+    removeElement(post);
     return true;
   }
 
   return false;
 };
 
-// ---- Posts handler ----
-const handlePost = async (element) => {
-  // Check if Suggested
-  await handleSuggestedPost(element);
-  // Check if Sponsored
-  await handleSponsoredPosts(element);
-};
+// ---- POSTS HANDLER ----
 
-const handlePostRemoval = (post) => {
-  if (DEBUG) {
-    console.log(post);
-    console.log("found a sponsored post");
+// Check if a post is Sponsored or Suggested
+const scanPost = async (element) => {
+  // Check if Suggested
+  if (!removeSuggestedPosts) {
+    debugLogger(
+      `Suggested post check skipped because it's disabled :  ${removeSponsoredPosts}`
+    );
+  } else {
+    const isSuggested = await handleSuggestedPost(element);
+    if (isSuggested) {
+      debugLogger("Found and removed a suggested post", post);
+      return true;
+    }
+  }
+  // Check if Sponsored
+  if (!removeSponsoredPosts) {
+    debugLogger(
+      `Sponsored post check skipped because it's disabled :  ${removeSponsoredPosts}`
+    );
+  } else {
+    const isSponsored = await handleSponsoredPost(element);
+    if (isSponsored) {
+      debugLogger("Found and removed a sponsored post:", post);
+      return true;
+    }
   }
 
-  // Remove the sponsored post
-  removeElement(post);
+  return false;
+};
+
+// Manually check current feed for Sponsored & Suggested posts.
+const scanAllPosts = async () => {
+  if (removing) return;
+  removing = true;
+  if (!timeline) await setTimeline();
+  for (post of timeline.querySelectorAll(postsSelector)) {
+    scanPost(post);
+  }
+  removing = false;
 };
 
 // ---- UTILS ----
 const removeElement = async (element) => {
   if (element.isConnected) {
-    element.remove();
+    const parent = element.closest("[data-pagelet^='FeedUnit_']");
+    const legacyParent = element.closest(".x1lliihq");
+    if (parent) {
+      parent.remove();
+    } else if (legacyParent) {
+      legacyParent.remove();
+    } else {
+      element.remove();
+    }
     await updateCounter();
   }
 };
@@ -149,38 +189,29 @@ const isSponsoredPost = (combination) => {
   return true;
 };
 
-const scanAllPosts = async () => {
-  if (removing) return;
-  removing = true;
-  if (!timeline) await setTimeline();
-  // Check if any sponsored appeared before load was finished
-  for (post of timeline.querySelectorAll(postsSelector)) {
-    handlePost(post);
-  }
-  removing = false;
-};
-
 const setTimeline = async () => {
+  // Logic for getting the feed timeline
   timeline = await waitForElementSelector(timelineSelector);
 };
 
-async function waitForElementSelector(selector) {
+const waitForElementSelector = async (selector) => {
+  // Get element asynchronously
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
       const element = document.querySelector(selector);
       if (element) {
-        if (DEBUG) {
-          // FOR DEBUG ONLY
-          console.log(`Found waited element :`, element);
-        }
+        debugLogger(`Found waited element with selector:`, selector);
+        debugLogger(element);
         clearInterval(interval);
         resolve(element);
       }
     }, 500);
   });
-}
+};
 
 // ---- TEST UTILS ----
+
+// Test if the badge counter increment is working
 const testUpdateCounter = async (times = 3, timer = 3000) => {
   return new Promise((resolve, reject) => {
     const interval = setInterval(function () {
@@ -195,20 +226,8 @@ const testUpdateCounter = async (times = 3, timer = 3000) => {
   });
 };
 
-// ---- Observers Functions ----
-const observeTimeline = async () => {
-  // Load timeline Elements
-  await setTimeline();
-  // Remove posts manually after observer is ready
-  scanAllPosts();
-  timelineObserver.observe(timeline, timelineObserverConfig);
-};
-const observeLocation = async () => {
-  // URL CHANGE OBSERVER
-  const bodyList = document.querySelector("body");
-  locationObserver.observe(bodyList, locationObserverConfig);
-};
 // ---- OBSERVERS ----
+
 // Location observer
 const locationObserverConfig = { childList: true, subtree: true };
 const handleLocation = (mutations) => {
@@ -228,6 +247,7 @@ const handleLocation = (mutations) => {
   });
 };
 const locationObserver = new MutationObserver(handleLocation);
+
 // Timeline observer
 const timelineObserverConfig = {
   attributes: true,
@@ -239,13 +259,28 @@ const handleTimeline = async (mutationList, observer) => {
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
-        handlePost(post);
+        scanPost(post);
       }
       break;
     }
   }
 };
 const timelineObserver = new MutationObserver(handleTimeline);
+
+// ---- Observers Functions ----
+const observeTimeline = async () => {
+  // Get and set the timeline Elements
+  await setTimeline();
+  // Scan and remove any posts that were loaded before the extensions
+  scanAllPosts();
+  timelineObserver.observe(timeline, timelineObserverConfig);
+};
+
+const observeLocation = async () => {
+  // URL CHANGE OBSERVER
+  const bodyList = document.querySelector("body");
+  locationObserver.observe(bodyList, locationObserverConfig);
+};
 
 // ---- MAIN ----
 async function runApp() {
