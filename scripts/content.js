@@ -43,7 +43,8 @@ let removing = false;
 let currentLocation = document.location.href;
 
 // Selector variables
-const timelineSelector = '[role="main"]';
+const mainSelector = '[role="main"]';
+const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i div div";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
 const anchorSelector = "div > div > span > span > span > span > a";
@@ -130,7 +131,7 @@ const scanPost = async (element) => {
   } else {
     const isSuggested = await handleSuggestedPost(element);
     if (isSuggested) {
-      debugLogger("Found and removed a suggested post", post);
+      debugLogger("Found and removed a suggested post", element);
       return true;
     }
   }
@@ -142,7 +143,7 @@ const scanPost = async (element) => {
   } else {
     const isSponsored = await handleSponsoredPost(element);
     if (isSponsored) {
-      debugLogger("Found and removed a sponsored post:", post);
+      debugLogger("Found and removed a sponsored post:", element);
       return true;
     }
   }
@@ -154,7 +155,6 @@ const scanPost = async (element) => {
 const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
-  if (!timeline) await setTimeline();
   for (post of timeline.querySelectorAll(postsSelector)) {
     scanPost(post);
   }
@@ -162,6 +162,13 @@ const scanAllPosts = async () => {
 };
 
 // ---- UTILS ----
+const setTimeline = async () => {
+  // Logic for getting the feed timeline
+  const mainElement = await waitForElementSelector(mainSelector);
+  timeline = mainElement.querySelector(timelineSelector);
+  debugLogger("Timeline found:", timeline);
+};
+
 const removeElement = async (element) => {
   if (element.isConnected) {
     const parent = element.closest("[data-pagelet^='FeedUnit_']");
@@ -187,11 +194,6 @@ const isSponsoredPost = (combination) => {
   if (combination.length <= 1) return false;
 
   return true;
-};
-
-const setTimeline = async () => {
-  // Logic for getting the feed timeline
-  timeline = await waitForElementSelector(timelineSelector);
 };
 
 const waitForElementSelector = async (selector) => {
@@ -255,7 +257,6 @@ const timelineObserverConfig = {
   subtree: true,
 };
 const handleTimeline = async (mutationList, observer) => {
-  if (!timeline) await setTimeline();
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
