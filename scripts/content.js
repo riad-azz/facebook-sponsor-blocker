@@ -1,5 +1,5 @@
 // ---- DEV UTILS ----
-const DEBUG = false;
+const DEBUG = true;
 
 // Custom console log
 const debugLogger = (...args) => {
@@ -44,7 +44,7 @@ let currentLocation = document.location.href;
 
 // Selector variables
 const mainSelector = '[role="main"]';
-const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i div div";
+const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
 const anchorSelector = "div > div > span > span > span > span > a";
