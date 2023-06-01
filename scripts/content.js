@@ -1,5 +1,5 @@
 // ---- DEV UTILS ----
-const DEBUG = true;
+const DEBUG = false;
 
 // Custom console log
 const debugLogger = (...args) => {
@@ -47,7 +47,8 @@ const mainSelector = '[role="main"]';
 const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
-const anchorSelector = "div > div > span > span > span > span > a";
+const tagSelector = "div > div > span > span > span > span > a";
+const textSelector = "span > span > span";
 
 // ---- BACKGROUND SCRIPT COMMUNICATION ----
 
@@ -83,35 +84,35 @@ const handleSuggestedPost = async (post) => {
 // ---- SPONSORED POSTS REMOVAL LOGIC ----
 const handleSponsoredPost = async (post) => {
   // sponsor check by anchor text
-  const anchorElement = post.querySelector(anchorSelector);
-  if (!anchorElement) {
-    debugLogger("Anchor element not found on post:", post);
+  const tagElement = post.querySelector(tagSelector);
+  if (!tagElement) {
+    debugLogger("Tag element not found on post:", post);
     return false;
   }
 
-  if (sponsorWordsFilter.includes(anchorElement.textContent)) {
+  if (sponsorWordsFilter.includes(tagElement.textContent)) {
     removeElement(post);
     return true;
   }
 
   // sponsor check combination
-  const tagElement = anchorElement.querySelector("span > span > span");
-  if (!tagElement) {
-    debugLogger("Tag element not found on post:", post);
+  const textElement = tagElement.querySelector(textSelector);
+  if (!textElement) {
+    debugLogger("Text element not found on post:", post);
     return false;
   }
-  const tagChildren = tagElement.querySelectorAll("span");
-  const validChildren = Array.from(tagChildren).filter((child) => {
+  const combinationElements = textElement.querySelectorAll("span");
+  const validElements = Array.from(combinationElements).filter((child) => {
     const computedStyle = window.getComputedStyle(child);
     const positionStyle = computedStyle.getPropertyValue("position");
     return positionStyle === "relative";
   });
 
-  const textArray = Array.from(validChildren).map((node) => node.textContent);
+  const textArray = Array.from(validElements).map((node) => node.textContent);
   const combination = textArray.join("");
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
-    debugLogger("combination:", combination);
+    debugLogger("Word combination:", combination);
     removeElement(post);
     return true;
   }
@@ -122,7 +123,7 @@ const handleSponsoredPost = async (post) => {
 // ---- POSTS HANDLER ----
 
 // Check if a post is Sponsored or Suggested
-const scanPost = async (element) => {
+const scanSinglePost = async (element) => {
   // Check if Suggested
   if (!removeSuggestedPosts) {
     debugLogger(
@@ -135,6 +136,7 @@ const scanPost = async (element) => {
       return true;
     }
   }
+
   // Check if Sponsored
   if (!removeSponsoredPosts) {
     debugLogger(
@@ -156,7 +158,7 @@ const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
   for (post of timeline.querySelectorAll(postsSelector)) {
-    scanPost(post);
+    scanSinglePost(post);
   }
   removing = false;
 };
@@ -260,7 +262,7 @@ const handleTimeline = async (mutationList, observer) => {
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
-        scanPost(post);
+        scanSinglePost(post);
       }
       break;
     }
