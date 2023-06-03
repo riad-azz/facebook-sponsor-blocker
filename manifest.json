@@ -1,9 +1,5 @@
 {
   "author": "Riad Azzoun",
-  "developer": {
-    "name": "Riad Azzoun",
-    "url": "https://github.com/riad-azz/facebook-no-sponsored-posts"
-  },
   "manifest_version": 2,
   "name": "Facebook Sponsor Blocker",
   "version": "6.3.0",
