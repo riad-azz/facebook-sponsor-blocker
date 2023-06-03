@@ -1,5 +1,5 @@
 // ---- DEV UTILS ----
-const DEBUG = true;
+const DEBUG = false;
 
 // Custom console log
 const debugLogger = (...args) => {
