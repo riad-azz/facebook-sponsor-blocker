@@ -1,5 +1,5 @@
 // ---- DEV UTILS ----
-const DEBUG = false;
+const DEBUG = true;
 
 // Custom console log
 const debugLogger = (...args) => {
@@ -43,13 +43,13 @@ let removing = false;
 let currentLocation = document.location.href;
 
 // Selector variables
-const mainSelector = '[role="main"]';
+const mainSelector =
+  ".x9f619.x1n2onr6.x1ja2u2z.x78zum5.x1iyjqo2.xs83m0k.xeuugli.xl56j7k.x1qjc9v5.xozqiw3.x1q0g3np.x1iplk16.x1xfsgkm.xqmdsaz.x1mtsufr.x1w9j1nh[role='main']";
 const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
 const tagSelector = "div > div > span > span > span > span > a";
 const textSelector = "span > span > span";
-
 // ---- BACKGROUND SCRIPT COMMUNICATION ----
 
 // Start the current tab counter
@@ -86,7 +86,7 @@ const handleSponsoredPost = async (post) => {
   // sponsor check by anchor text
   const tagElement = post.querySelector(tagSelector);
   if (!tagElement) {
-    debugLogger("Tag element not found on post:", post);
+    // debugLogger("Tag element not found on post:", post);
     return false;
   }
 
@@ -98,7 +98,7 @@ const handleSponsoredPost = async (post) => {
   // sponsor check combination
   const textElement = tagElement.querySelector(textSelector);
   if (!textElement) {
-    debugLogger("Text element not found on post:", post);
+    // debugLogger("Text element not found on post:", post);
     return false;
   }
   const combinationElements = textElement.querySelectorAll("span");
@@ -157,6 +157,10 @@ const scanSinglePost = async (element) => {
 const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
+  if (!timeline) {
+    debugLogger("Didn't scan all posts because timeline is null", timeline);
+    return;
+  }
   for (post of timeline.querySelectorAll(postsSelector)) {
     scanSinglePost(post);
   }
@@ -164,25 +168,47 @@ const scanAllPosts = async () => {
 };
 
 // ---- UTILS ----
+const isMainFeedLocation = (currentUrl) => {
+  const feedRegex = /^https:\/\/www\.facebook\.com\/\?.*/;
+  if (
+    currentUrl !== "https://www.facebook.com/" &&
+    !feedRegex.test(currentUrl)
+  ) {
+    return false;
+  }
+  return true;
+};
+
 const setTimeline = async () => {
   // Logic for getting the feed timeline
+
+  const currentUrl = document.location.href;
+  const validUrl = isMainFeedLocation(currentUrl);
+  if (!validUrl) {
+    debugLogger("Skipped searching for main feed in :", currentUrl);
+    return;
+  }
+
   const mainElement = await waitForElementSelector(mainSelector);
-  timeline = mainElement.querySelector(timelineSelector);
-  debugLogger("Timeline found:", timeline);
+  if (mainElement) {
+    timeline = mainElement.querySelector(timelineSelector);
+  } else {
+    debugLogger("Main feed not found in :", currentUrl);
+    return;
+  }
+
+  if (timeline) {
+    debugLogger("Timeline found:", timeline);
+  } else {
+    debugLogger("Timeline not found in :", currentUrl);
+  }
 };
 
 const removeElement = async (element) => {
   if (element.isConnected) {
-    const parent = element.closest("[data-pagelet^='FeedUnit_']");
-    const legacyParent = element.closest(".x1lliihq");
-    if (parent) {
-      parent.remove();
-    } else if (legacyParent) {
-      legacyParent.remove();
-    } else {
-      element.remove();
-    }
-    await updateCounter();
+    element.className = "";
+    element.style.display = "none";
+    updateCounter();
   }
 };
 
@@ -201,15 +227,23 @@ const isSponsoredPost = (combination) => {
 const waitForElementSelector = async (selector) => {
   // Get element asynchronously
   return new Promise((resolve, reject) => {
+    let tries = 30;
     const interval = setInterval(function () {
+      if (tries <= 0) {
+        clearInterval(interval);
+        resolve(null);
+      }
       const element = document.querySelector(selector);
       if (element) {
         debugLogger(`Found waited element with selector:`, selector);
         debugLogger(element);
         clearInterval(interval);
         resolve(element);
+      } else {
+        debugLogger(`Element not found ${tries} tries left`, selector);
+        tries -= 1;
       }
-    }, 500);
+    }, 1000);
   });
 };
 
@@ -234,21 +268,25 @@ const testUpdateCounter = async (times = 3, timer = 3000) => {
 
 // Location observer
 const locationObserverConfig = { childList: true, subtree: true };
-const handleLocation = (mutations) => {
-  mutations.forEach((mutation) => {
-    if (currentLocation != document.location.href) {
-      currentLocation = document.location.href;
-      if (document.location.href != "https://www.facebook.com/") {
-        // STOP TIMELINE OBSERVER
-        timelineObserver.disconnect();
-        return;
-      }
-      // START THE TIMELINE OBSERVER
-      observeTimeline();
-      // EXTRA CHECK FOR POSTS AFTER URL CHANGE
-      scanAllPosts();
+const handleLocation = (mutations, observer) => {
+  if (currentLocation != document.location.href) {
+    debugLogger(
+      "Location changed from",
+      currentLocation,
+      "to",
+      document.location.href
+    );
+
+    currentLocation = document.location.href;
+    const validUrl = isMainFeedLocation(currentLocation);
+    if (!validUrl) {
+      // STOP TIMELINE OBSERVER
+      timelineObserver.disconnect();
+      return;
     }
-  });
+    // START THE TIMELINE OBSERVER
+    observeTimeline();
+  }
 };
 const locationObserver = new MutationObserver(handleLocation);
 
@@ -258,7 +296,7 @@ const timelineObserverConfig = {
   childList: true,
   subtree: true,
 };
-const handleTimeline = async (mutationList, observer) => {
+const handleTimeline = (mutationList, observer) => {
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       for (post of timeline.querySelectorAll(postsSelector)) {
@@ -273,10 +311,14 @@ const timelineObserver = new MutationObserver(handleTimeline);
 // ---- Observers Functions ----
 const observeTimeline = async () => {
   // Get and set the timeline Elements
-  await setTimeline();
+  if (!timeline) {
+    await setTimeline();
+  }
   // Scan and remove any posts that were loaded before the extensions
-  scanAllPosts();
-  timelineObserver.observe(timeline, timelineObserverConfig);
+  if (timeline) {
+    scanAllPosts();
+    timelineObserver.observe(timeline, timelineObserverConfig);
+  }
 };
 
 const observeLocation = async () => {
