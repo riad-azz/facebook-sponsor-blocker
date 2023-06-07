@@ -1,5 +1,5 @@
 // ---- DEV UTILS ----
-const DEBUG = false;
+const DEBUG = true;
 
 // Custom console log
 const debugLogger = (...args) => {
@@ -48,7 +48,7 @@ const mainSelector =
 const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
-const tagSelector = "div > div > span > span > span > span > a";
+const tagSelector = ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv";
 const textSelector = "span > span > span";
 // ---- BACKGROUND SCRIPT COMMUNICATION ----
 
