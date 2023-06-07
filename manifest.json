@@ -2,7 +2,7 @@
   "author": "Riad Azzoun",
   "manifest_version": 2,
   "name": "Facebook Sponsor Blocker",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "description": "A extension to remove facebook sponsored posts.",
   "icons": {
     "32": "icons/fb-ads-32.png",
