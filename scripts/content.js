@@ -15,6 +15,7 @@ const debugLogger = (...args) => {
 const removeSponsoredPosts = true;
 const removeSuggestedPosts = true;
 const sponsorWordsFilter = [
+  "Sponsored",
   "स्पॉन्सर्ड",
   "مُموَّل",
   "赞助内容",
@@ -35,6 +36,140 @@ const sponsorWordsFilter = [
   "Sponsorizât",
   "Stuðlað",
   "Urraithe",
+  "Sponsored", // English
+  "Patrocinado", // Spanish
+  "Sponsorisé", // French
+  "Gesponsert", // German
+  "Sponsorizzato", // Italian
+  "Patrocinado", // Portuguese
+  "Спонсируемый", // Russian
+  "スポンサード", // Japanese
+  "赞助", // Chinese (Simplified)
+  "प्रायोजित", // Hindi
+  "스폰서", // Korean
+  "Gesponsord", // Dutch
+  "Sponsor", // Swedish
+  "Sponsorerede", // Danish
+  "Sponset", // Norwegian
+  "Sponsoroidut", // Finnish
+  "Sponsorowane", // Polish
+  "Sponsorlu", // Turkish
+  "Χορηγούμενο", // Greek
+  "Sponzorováno", // Czech
+  "Támogatott", // Hungarian
+  "Sponsorizat", // Romanian
+  "Disponsori", // Indonesian
+  "Được tài trợ", // Vietnamese
+  "ผู้สนับสนุน", // Thai
+  "Ditaja", // Malay
+  "ממומן", // Hebrew
+  "Спонсоровано", // Ukrainian
+  "Спонсорирано", // Bulgarian
+  "Patrocinat", // Catalan
+  "Sponsoreret", // Danish
+  "Sponsorált", // Hungarian
+  "Χορηγούμενη", // Greek
+  "Sponsorowane", // Polish
+  "Подпомогнат", // Macedonian
+  "Sponsorisht", // Albanian
+  "Patrocinat", // Romanian
+  "Sponsrad", // Swedish
+  "Sponzorirano", // Slovenian
+  "Patrocinat", // Occitan
+  "Sponsoroitu", // Finnish
+  "Sponsrad", // Swedish
+  "Sponzorirano", // Bosnian
+  "Sponsorerad", // Swedish
+  "Sponsort", // Luxembourgish
+  "Esponsorizado", // Galician
+  "Patrocinado", // Asturian
+  "פּאַטראָספירט", // Yiddish
+  "ಸ್ಪಾನ್ಸರ್", // Kannada
+  "முகாமையான", // Tamil
+  "স্পন্সরযোগ্য", // Bengali
+  "స్పాన్సర్", // Telugu
+  "സ്പോൺസർഡ്", // Malayalam
+  "ස්පෝන්සර්", // Sinhala
+  "سپانسر", // Pashto
+  "پنچانگی", // Urdu
+  "سپانسر", // Kashmiri
+  "سپانسر", // Sindhi
+  "পৰমৰ্শক", // Assamese
+  "স্পনসর", // Bengali
+  "ସ୍ପନସରଡ୍", // Odia
+  "স্পনসরকৃত", // Assamese
+  "স্পনসরকৃত", // Bengali
+  "સ્પોન્સર", // Gujarati
+  "સ્પોન્સરડ", // Gujarati
+  "संवर्धित", // Marathi
+  "स्पोन्सर्ड", // Nepali
+  "সৰ্বদলীয়", // Assamese
+  "সহায়িত", // Bengali
+  "ପ୍ରଯୋଜିତ", // Odia
+  "பொறுப்பு", // Tamil
+  "ప్రొత్సాహించబడిన", // Telugu
+  "ಬೆಂಬಲಿತ", // Kannada
+  "പ്രായോജിച്ചത്", // Malayalam
+  "සහභාගී", // Sinhala
+  "خاندهار", // Pashto
+  "نیازمند", // Urdu
+  "سامارا", // Kashmiri
+  "سپونسرډ", // Pashto
+  "ସଂରକ୍ଷିତ", // Odia
+  "স্বাস্থ্যকর", // Bengali
+  "સંરક્ષિત", // Gujarati
+  "संगठित", // Marathi
+  "प्रायोजित", // Nepali
+  "પોતાનીને", // Gujarati
+  "தனித்துவ", // Tamil
+  "అమలు", // Telugu
+  "ನಿರಪೇಕ್ಷ", // Kannada
+  "സ്വന്തമായ", // Malayalam
+  "වෙනුවෙන්", // Sinhala
+  "تحت", // Pashto
+  "زیر", // Urdu
+  "وستوئید", // Kashmiri
+  "دریځیږی", // Pashto
+  "ରୂପରେ", // Odia
+  "উজ্জ্বল", // Bengali
+  "ઉજ્જવળ", // Gujarati
+  "निरंकुश", // Marathi
+  "प्रायोजित", // Nepali
+  "પુરાવાં", // Gujarati
+  "அணுகல்", // Tamil
+  "గొత్తు", // Telugu
+  "ಹಕ್ಕುದಾರರು", // Kannada
+  "അനുസരിച്ച്", // Malayalam
+  "වරක්", // Sinhala
+  "په", // Pashto
+  "مطابق", // Urdu
+  "جيبنه", // Kashmiri
+  "پامیګر", // Pashto
+  "ମଧ୍ୟ", // Odia
+  "উপর", // Bengali
+  "પર", // Gujarati
+  "सामग्री", // Marathi
+  "प्रायोजित", // Nepali
+  "પર", // Gujarati
+  "மேல்", // Tamil
+  "పైన", // Telugu
+  "ಮೇಲೆ", // Kannada
+  "പതിപ്പിക്കപ്പെട്ട", // Malayalam
+  "සඳහා", // Sinhala
+  "دی", // Pashto
+  "کی", // Urdu
+  "حسب", // Arabic
+  "آژانس", // Persian
+  "ترویجی", // Persian
+  "تبلیغی", // Persian
+  "حمایتی", // Persian
+  "حمایتی", // Persian
+  "تبلیغاتی", // Persian
+  "تبلیغاتی", // Persian
+  "تبلیغاتی", // Persian
+  "ترویجی", // Persian
+  "دعاوی", // Persian
+  "تبلیغی", // Persian
 ];
 
 // Mutable variables
@@ -46,10 +181,11 @@ let currentLocation = document.location.href;
 const mainSelector =
   ".x9f619.x1n2onr6.x1ja2u2z.x78zum5.x1iyjqo2.xs83m0k.xeuugli.xl56j7k.x1qjc9v5.xozqiw3.x1q0g3np.x1iplk16.x1xfsgkm.xqmdsaz.x1mtsufr.x1w9j1nh[role='main']";
 const timelineSelector = ".x1hc1fzr.x1unhpq9.x6o7n8i";
-const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const suggestedSelector = "div.xcnsx8t";
+const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const tagSelector = ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv";
 const textSelector = "span > span > span";
+const useSelector = "use[*|href]";
 // ---- BACKGROUND SCRIPT COMMUNICATION ----
 
 // Start the current tab counter
@@ -82,8 +218,28 @@ const handleSuggestedPost = async (post) => {
 };
 
 // ---- SPONSORED POSTS REMOVAL LOGIC ----
-const handleSponsoredPost = async (post) => {
-  // sponsor check by anchor text
+const legacySponsoredPostRemoval = (post) => {
+  const useElement = post.querySelector(useSelector);
+  if (!useElement) return false;
+
+  const postId = useElement.getAttribute("xlink:href").slice(1);
+  if (!postId) return false;
+
+  const textElement = document.querySelector(`text[id='${postId}']`);
+  if (!textElement) return false;
+
+  const postTag = textElement.textContent;
+  if (sponsorWordsFilter.includes(postTag)) {
+    textElement.id = "";
+    removeElement(post);
+    debugLogger("Legacy removal model was used");
+    return true;
+  }
+
+  return false;
+};
+
+const sponsoredPostRemoval = (post) => {
   const tagElement = post.querySelector(tagSelector);
   if (!tagElement) {
     // debugLogger("Tag element not found on post:", post);
@@ -112,12 +268,21 @@ const handleSponsoredPost = async (post) => {
   const combination = textArray.join("");
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
-    debugLogger("Word combination:", combination);
     removeElement(post);
+    debugLogger("Latest removal model was used");
     return true;
   }
+};
 
-  return false;
+const handleSponsoredPost = async (post) => {
+  const isSponsored = sponsoredPostRemoval(post);
+  if (!isSponsored) {
+    const legacyIsSponsored = legacySponsoredPostRemoval(post);
+    if (!legacyIsSponsored) {
+      return false;
+    }
+  }
+  return true;
 };
 
 // ---- POSTS HANDLER ----
