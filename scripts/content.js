@@ -392,9 +392,10 @@ const isSponsoredPost = (combination) => {
 const waitForElementSelector = async (selector) => {
   // Get element asynchronously
   return new Promise((resolve, reject) => {
-    let tries = 30;
+    let tries = 150;
     const interval = setInterval(function () {
       if (tries <= 0) {
+        debugLogger(`Failed to find waited element with selector`, selector);
         clearInterval(interval);
         resolve(null);
       }
@@ -408,7 +409,7 @@ const waitForElementSelector = async (selector) => {
         debugLogger(`Element not found ${tries} tries left`, selector);
         tries -= 1;
       }
-    }, 1000);
+    }, 100);
   });
 };
 
