@@ -323,7 +323,7 @@ const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
   if (!timeline) {
-    debugLogger("Didn't scan all posts because timeline is null", timeline);
+    debugLogger("Scan all passed because timeline is null", timeline);
     return;
   }
   for (post of timeline.querySelectorAll(postsSelector)) {
@@ -356,7 +356,11 @@ const setTimeline = async () => {
 
   const mainElement = await waitForElementSelector(mainSelector);
   if (mainElement) {
-    timeline = mainElement.querySelector(timelineSelector);
+    timeline = await waitForElementSelector(
+      timelineSelector,
+      mainElement,
+      true
+    );
   } else {
     debugLogger("Main feed not found in :", currentUrl);
     return;
@@ -389,7 +393,11 @@ const isSponsoredPost = (combination) => {
   return true;
 };
 
-const waitForElementSelector = async (selector) => {
+const waitForElementSelector = async (
+  selector,
+  parent = document,
+  infinite = false
+) => {
   // Get element asynchronously
   return new Promise((resolve, reject) => {
     let tries = 150;
@@ -399,13 +407,13 @@ const waitForElementSelector = async (selector) => {
         clearInterval(interval);
         resolve(null);
       }
-      const element = document.querySelector(selector);
+      const element = parent.querySelector(selector);
       if (element) {
         debugLogger(`Found waited element with selector:`, selector);
         debugLogger(element);
         clearInterval(interval);
         resolve(element);
-      } else {
+      } else if (!infinite) {
         debugLogger(`Element not found ${tries} tries left`, selector);
         tries -= 1;
       }
@@ -465,9 +473,7 @@ const timelineObserverConfig = {
 const handleTimeline = (mutationList, observer) => {
   for (const mutation of mutationList) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
-      for (post of timeline.querySelectorAll(postsSelector)) {
-        scanSinglePost(post);
-      }
+      scanAllPosts();
       break;
     }
   }
@@ -481,10 +487,8 @@ const observeTimeline = async () => {
     await setTimeline();
   }
   // Scan and remove any posts that were loaded before the extensions
-  if (timeline) {
-    scanAllPosts();
-    timelineObserver.observe(timeline, timelineObserverConfig);
-  }
+  scanAllPosts();
+  timelineObserver.observe(timeline, timelineObserverConfig);
 };
 
 const observeLocation = async () => {
