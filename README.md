@@ -14,8 +14,6 @@ Don't forget to hit the :star:, If you like this repo
 
 - Remove sponsored posts
 - Remove suggested posts
-- Option to toggle on/off removal of either posts
-- Manual button to remove toggled posts
 
 ![Extension preview image](https://github.com/riad-azz/readme-storage/blob/main/facebook-sponsor-blocker/sc-01.png?raw=true)
 
