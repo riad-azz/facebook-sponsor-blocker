@@ -493,7 +493,7 @@ const observeTimeline = async () => {
 
 const observeLocation = async () => {
   // URL CHANGE OBSERVER
-  const bodyList = document.querySelector("body");
+  const bodyList = await waitForElementSelector("body", document, true);
   locationObserver.observe(bodyList, locationObserverConfig);
 };
 
