@@ -322,9 +322,9 @@ const scanSinglePost = async (element) => {
 const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
-  if (!timeline) {
-    debugLogger("Scan all passed because timeline is null", timeline);
-    return;
+  if (!timeline || !timeline.isConnected) {
+    debugLogger("Scan all posts timeline is null", timeline);
+    await setTimeline();
   }
   for (post of timeline.querySelectorAll(postsSelector)) {
     scanSinglePost(post);
@@ -483,7 +483,7 @@ const timelineObserver = new MutationObserver(handleTimeline);
 // ---- Observers Functions ----
 const observeTimeline = async () => {
   // Get and set the timeline Elements
-  if (!timeline) {
+  if (!timeline || !timeline.isConnected) {
     await setTimeline();
   }
   // Scan and remove any posts that were loaded before the extensions
