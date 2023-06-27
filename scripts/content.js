@@ -322,10 +322,9 @@ const scanSinglePost = async (element) => {
 const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
-  if (!timeline || !timeline.isConnected) {
-    debugLogger("Scan all posts timeline is null", timeline);
-    await setTimeline();
-  }
+
+  if (!isTimelineDefined()) return;
+
   for (post of timeline.querySelectorAll(postsSelector)) {
     scanSinglePost(post);
   }
@@ -344,6 +343,14 @@ const isMainFeedLocation = (currentUrl) => {
   return true;
 };
 
+const isTimelineDefined = () => {
+  if (!timeline || !timeline.isConnected) {
+    return false;
+  }
+
+  return true;
+};
+
 const setTimeline = async () => {
   // Logic for getting the feed timeline
 
@@ -356,20 +363,15 @@ const setTimeline = async () => {
 
   const mainElement = await waitForElementSelector(mainSelector);
   if (mainElement) {
-    timeline = await waitForElementSelector(
-      timelineSelector,
-      mainElement,
-      true
-    );
+    timeline = await waitForElementSelector(timelineSelector, mainElement);
   } else {
     debugLogger("Main feed not found in :", currentUrl);
-    return;
   }
 
   if (timeline) {
     debugLogger("Timeline found:", timeline);
   } else {
-    debugLogger("Timeline not found in :", currentUrl);
+    debugLogger("Timeline not found, falling back to body element");
   }
 };
 
@@ -483,18 +485,22 @@ const timelineObserver = new MutationObserver(handleTimeline);
 // ---- Observers Functions ----
 const observeTimeline = async () => {
   // Get and set the timeline Elements
-  if (!timeline || !timeline.isConnected) {
-    await setTimeline();
-  }
+  await setTimeline();
   // Scan and remove any posts that were loaded before the extensions
+  if (!isTimelineDefined()) return;
   scanAllPosts();
-  timelineObserver.observe(timeline, timelineObserverConfig);
+  if (isTimelineDefined()) {
+    timelineObserver.observe(timeline, timelineObserverConfig);
+  } else {
+    const body = await waitForElementSelector("body");
+    timelineObserver.observe(body, timelineObserverConfig);
+  }
 };
 
 const observeLocation = async () => {
   // URL CHANGE OBSERVER
-  const bodyList = await waitForElementSelector("body", document, true);
-  locationObserver.observe(bodyList, locationObserverConfig);
+  const body = await waitForElementSelector("body");
+  locationObserver.observe(body, locationObserverConfig);
 };
 
 // ---- MAIN ----
