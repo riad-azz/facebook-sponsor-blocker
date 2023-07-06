@@ -194,7 +194,13 @@ const updateCounter = async () => {
 };
 
 const handleMessages = (request) => {
-  if (request.title === "block-suggested-updated") {
+  if (request.title === "block-sponsored-updated") {
+    isBlockSponsored = request.value;
+    if (isBlockSponsored) {
+      scanAllPosts();
+    }
+    debugLogger("Block Sponsored updated in content.js:", isBlockSuggested);
+  } else if (request.title === "block-suggested-updated") {
     isBlockSuggested = request.value;
     if (isBlockSuggested) {
       scanAllPosts();
@@ -441,9 +447,11 @@ const observeLocation = async () => {
 };
 
 const loadStoredVariables = async () => {
-  const { blockSuggested } = await browser.storage.local.get([
+  const { blockSponsored, blockSuggested } = await browser.storage.local.get([
+    "blockSponsored",
     "blockSuggested",
   ]);
+  isBlockSponsored = blockSponsored ?? true;
   isBlockSuggested = blockSuggested ?? true;
 };
 

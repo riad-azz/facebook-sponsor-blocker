@@ -8,13 +8,22 @@ browser.browserAction.setBadgeTextColor({ color: "white" });
 
 // Load total removed posts count from extension storage
 const loadStoredVariables = async () => {
-  const { totalCount: count, blockSuggested } = await browser.storage.local.get(
-    ["totalCount", "blockSuggested"]
-  );
+  const {
+    totalCount: count,
+    blockSponsored,
+    blockSuggested,
+  } = await browser.storage.local.get([
+    "totalCount",
+    "blockSponsored",
+    "blockSuggested",
+  ]);
   if (count) {
     totalCount = count;
   } else {
     await browser.storage.local.set({ totalCount: 0 });
+  }
+  if (!blockSponsored) {
+    await browser.storage.local.set({ blockSponsored: true });
   }
   if (!blockSuggested) {
     await browser.storage.local.set({ blockSuggested: true });
