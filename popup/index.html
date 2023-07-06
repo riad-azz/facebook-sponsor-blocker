@@ -4,24 +4,31 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="style.css" />
     <title>Facebook Sponsor Blocker</title>
   </head>
   <body>
     <main class="fsb-main">
       <header class="fsb-top">
-        <img class="fsb-logo" src="popup.png" />
+        <img class="fsb-logo" src="logo.png" />
         <div class="fsb-title">Facebook Sponsor Blocker</div>
       </header>
       <div class="fsb-divider"></div>
       <div class="fsb-description">Blocks Sponsored and Suggested posts</div>
-      <div class="fsb-message">
+      <div class="fsb-text-row">
         Blocked on this page
         <span id="fsb-tab-count" class="fsb-counter-text">0</span>
       </div>
-      <div class="fsb-message">
+      <div class="fsb-text-row">
         Blocked since install
         <span id="fsb-total-count" class="fsb-counter-text">0</span>
+      </div>
+      <div class="fsb-divider"></div>
+      <div class="fsb-input-row">
+        <label for="suggested-checkbox">
+          <input type="checkbox" id="suggested-checkbox" />
+          Block Suggested Posts
+        </label>
       </div>
       <div class="fsb-divider"></div>
       <div class="fsb-author">

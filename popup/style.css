@@ -12,6 +12,7 @@ body {
 .fsb-divider {
   width: 100%;
   border-bottom: 1px grey solid;
+  padding-top: 4px;
   margin-bottom: 8px;
 }
 
@@ -45,7 +46,7 @@ body {
   padding-bottom: 10px;
 }
 
-.fsb-message {
+.fsb-text-row {
   display: block;
   font-size: 16px;
   background-color: #3a3b3c;
@@ -55,19 +56,19 @@ body {
   margin-bottom: 8px;
 }
 
+.fsb-input-row {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  border-radius: 12px;
+  line-height: 1.5;
+  padding: 4px 0;
+  margin-bottom: 2px;
+}
+
 .fsb-counter-text {
   font-size: 17px;
   float: right;
-}
-
-.fsb-author-container {
-  display: flex;
-  gap: 4px;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 10px;
-  line-height: 1.5;
 }
 
 .fsb-author-refer {

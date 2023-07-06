@@ -8,11 +8,16 @@ browser.browserAction.setBadgeTextColor({ color: "white" });
 
 // Load total removed posts count from extension storage
 const loadStoredVariables = async () => {
-  const counter = await browser.storage.local.get("totalCount");
-  if (counter.totalCount) {
-    totalCount = counter.totalCount;
+  const { totalCount: count, blockSuggested } = await browser.storage.local.get(
+    ["totalCount", "blockSuggested"]
+  );
+  if (count) {
+    totalCount = count;
   } else {
     await browser.storage.local.set({ totalCount: 0 });
+  }
+  if (!blockSuggested) {
+    await browser.storage.local.set({ blockSuggested: true });
   }
 };
 
@@ -21,7 +26,7 @@ const startTabCounter = (tabId) => {
   activeTabs[tabId] = 0;
 };
 
-// Update badge text for a tab
+// Update badge text for a specified active tab
 const updateTabBadgeCounter = (tabId) => {
   browser.browserAction.setBadgeText({
     tabId: tabId,
@@ -34,8 +39,8 @@ const updatePopupCounter = async (tabId) => {
   tabCount = activeTabs[tabId];
   const sending = browser.runtime.sendMessage({
     title: "counter-updated",
-    totalCounter: totalCount,
-    tabCounter: tabCount,
+    totalCount,
+    tabCount,
   });
   sending.then(null, (error) => console.log("Popup page is not open"));
 };
@@ -59,9 +64,9 @@ const handleOnMessage = (request, sender, sendResponse) => {
     updateCounter(currentTabId);
   } else if (request.title === "get-counter") {
     const currentTabId = request.tabId;
-    response = {
-      totalCounter: totalCount,
-      tabCounter: activeTabs[currentTabId],
+    const response = {
+      totalCount,
+      tabCount: activeTabs[currentTabId],
     };
     sendResponse(response);
   }
