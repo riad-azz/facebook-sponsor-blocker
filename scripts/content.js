@@ -199,7 +199,7 @@ const handleMessages = (request) => {
     if (isBlockSponsored) {
       scanAllPosts();
     }
-    debugLogger("Block Sponsored updated in content.js:", isBlockSuggested);
+    debugLogger("Block Sponsored updated in content.js:", isBlockSponsored);
   } else if (request.title === "block-suggested-updated") {
     isBlockSuggested = request.value;
     if (isBlockSuggested) {
@@ -239,8 +239,20 @@ const waitForElementSelector = async (
 
 const removeElement = async (element) => {
   if (element.isConnected) {
+    element.remove();
+  }
+};
+
+const hideElement = async (element) => {
+  if (element.isConnected) {
     element.className = "";
     element.style.display = "none";
+  }
+};
+
+const hideSponsoredElement = async (element) => {
+  if (element.isConnected) {
+    hideElement(element);
     updateCounter();
   }
 };
@@ -279,7 +291,7 @@ const handleSuggestedPost = async (post) => {
     return false;
   }
 
-  removeElement(post);
+  hideSponsoredElement(post);
   return true;
 };
 
@@ -291,13 +303,16 @@ const legacySponsoredPostRemoval = (post) => {
   const postId = useElement.getAttribute("xlink:href").slice(1);
   if (!postId) return false;
 
-  const textElement = document.querySelector(`text[id='${postId}']`);
+  const textElement = document.querySelector(`#${postId}`);
   if (!textElement) return false;
 
-  const postTag = textElement.textContent;
+  const textParent = textElement.parentElement;
+  if (!textParent) return false;
+
+  const postTag = textParent.textContent.trim();
   if (sponsorWordsFilter.includes(postTag)) {
-    textElement.id = "";
-    removeElement(post);
+    removeElement(textParent);
+    hideSponsoredElement(post);
     debugLogger("Legacy removal model was used");
     return true;
   }
@@ -313,7 +328,7 @@ const sponsoredPostRemoval = (post) => {
   }
 
   if (sponsorWordsFilter.includes(tagElement.textContent)) {
-    removeElement(post);
+    hideSponsoredElement(post);
     return true;
   }
 
@@ -331,10 +346,10 @@ const sponsoredPostRemoval = (post) => {
   });
 
   const textArray = Array.from(validElements).map((node) => node.textContent);
-  const combination = textArray.join("");
+  const combination = textArray.join("").trim();
   const isSponsored = isSponsoredPost(combination);
   if (isSponsored) {
-    removeElement(post);
+    hideSponsoredElement(post);
     debugLogger("Latest removal model was used");
     return true;
   }
