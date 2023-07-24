@@ -243,6 +243,12 @@ const removeElement = async (element) => {
   }
 };
 
+const deleteInnerHtml = async (element) => {
+  if (element.isConnected) {
+    element.innerHTML = "";
+  }
+};
+
 const hideElement = async (element) => {
   if (element.isConnected) {
     element.className = "";
@@ -311,7 +317,7 @@ const legacySponsoredPostRemoval = (post) => {
 
   const postTag = textParent.textContent.trim();
   if (sponsorWordsFilter.includes(postTag)) {
-    removeElement(textParent);
+    deleteInnerHtml(textParent);
     hideSponsoredElement(post);
     debugLogger("Legacy removal model was used");
     return true;
