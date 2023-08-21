@@ -3,6 +3,7 @@ const totalCountElement = document.getElementById("fsb-total-count");
 const tabCountParent = tabCountElement.parentElement;
 const sponsoredCheckbox = document.getElementById("sponsored-checkbox");
 const suggestedCheckbox = document.getElementById("suggested-checkbox");
+const reelsCheckbox = document.getElementById("reels-checkbox");
 let currentTabId;
 
 // Get and set the current tab id
@@ -63,13 +64,27 @@ const handleSuggested = async (event) => {
   });
 };
 
+// Listen for reels checkbox changes
+const handleReels = async (event) => {
+  const value = event.target.checked;
+  if (!currentTabId) return;
+  browser.storage.local.set({ blockReels: value });
+  browser.tabs.sendMessage(currentTabId, {
+    title: "block-reels-updated",
+    value,
+  });
+};
+
 const loadStoredVariables = async () => {
-  const { blockSuggested, blockSponsored } = await browser.storage.local.get([
-    "blockSponsored",
-    "blockSuggested",
-  ]);
+  const { blockSuggested, blockSponsored, blockReels } =
+    await browser.storage.local.get([
+      "blockSponsored",
+      "blockSuggested",
+      "blockReels",
+    ]);
   sponsoredCheckbox.checked = blockSponsored ?? true;
   suggestedCheckbox.checked = blockSuggested ?? true;
+  reelsCheckbox.checked = blockReels ?? true;
 };
 
 async function runApp() {
@@ -80,6 +95,7 @@ async function runApp() {
   // Observe input changes
   sponsoredCheckbox.addEventListener("change", handleSponsored);
   suggestedCheckbox.addEventListener("change", handleSuggested);
+  reelsCheckbox.addEventListener("change", handleReels);
   // Listen for background script messages
   browser.runtime.onMessage.addListener(handleMessages);
 }

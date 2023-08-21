@@ -165,6 +165,7 @@ let body;
 let removing = false;
 let isBlockSponsored = true;
 let isBlockSuggested = true;
+let isBlockReels = true;
 let currentLocation = document.location.href;
 
 // Selector variables
@@ -173,6 +174,7 @@ const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const tagSelector = ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv";
 const textSelector = "span > span > span";
 const useSelector = "use[*|href]";
+const reelsSelector = "a[href='/reels/create/']";
 
 // ---- UTILS ----
 
@@ -206,6 +208,12 @@ const handleMessages = (request) => {
       scanAllPosts();
     }
     debugLogger("Block Suggested updated in content.js:", isBlockSuggested);
+  } else if (request.title === "block-reels-updated") {
+    isBlockReels = request.value;
+    if (isBlockReels) {
+      scanAllPosts();
+    }
+    debugLogger("Block Reels updated in content.js:", isBlockReels);
   }
 };
 
@@ -256,7 +264,7 @@ const hideElement = async (element) => {
   }
 };
 
-const hideSponsoredElement = async (element) => {
+const hideBlockedElement = async (element) => {
   if (element.isConnected) {
     hideElement(element);
     updateCounter();
@@ -286,18 +294,23 @@ const isSponsoredPost = (combination) => {
   return true;
 };
 
+// ---- SUGGESTED REELS REMOVAL LOGIC ----
+const handleReels = async (post) => {
+  const isReels = post.querySelector(reelsSelector);
+  if (!isReels) {
+    return false;
+  }
+
+  return true;
+};
+
 // ---- SUGGESTED POSTS REMOVAL LOGIC ----
 const handleSuggestedPost = async (post) => {
   const isSuggested = post.querySelector(suggestedSelector);
   if (!isSuggested) {
     return false;
   }
-  if (!isBlockSuggested) {
-    debugLogger(`Suggested posts removal is disabled : ${isBlockSuggested}`);
-    return false;
-  }
 
-  hideSponsoredElement(post);
   return true;
 };
 
@@ -317,9 +330,10 @@ const legacySponsoredPostRemoval = (post) => {
 
   const postTag = textParent.textContent.trim();
   if (sponsorWordsFilter.includes(postTag)) {
-    deleteInnerHtml(textParent);
-    hideSponsoredElement(post);
-    debugLogger("Legacy removal model was used");
+    if (isBlockSponsored) {
+      deleteInnerHtml(textParent);
+    }
+    debugLogger("Legacy sponsored posts detector model was used");
     return true;
   }
 
@@ -334,7 +348,6 @@ const sponsoredPostRemoval = (post) => {
   }
 
   if (sponsorWordsFilter.includes(tagElement.textContent)) {
-    hideSponsoredElement(post);
     return true;
   }
 
@@ -354,11 +367,13 @@ const sponsoredPostRemoval = (post) => {
   const textArray = Array.from(validElements).map((node) => node.textContent);
   const combination = textArray.join("").trim();
   const isSponsored = isSponsoredPost(combination);
+
   if (isSponsored) {
-    hideSponsoredElement(post);
-    debugLogger("Latest removal model was used");
+    debugLogger("Latest sponsored posts detector model was used");
     return true;
   }
+
+  return false;
 };
 
 const handleSponsoredPost = async (post) => {
@@ -376,27 +391,46 @@ const handleSponsoredPost = async (post) => {
 
 // Check if a post is Sponsored or Suggested
 const scanSinglePost = async (element) => {
+  // Check if Suggested reels
+  const isReels = await handleReels(element);
+  if (isReels) {
+    if (!isBlockReels) {
+      debugLogger(
+        `Reels removal skipped because it's disabled :  ${isBlockReels}`
+      );
+      return false;
+    } else {
+      hideBlockedElement(element);
+      debugLogger("Found and removed a reels post:", element);
+      return true;
+    }
+  }
+
   // Check if Suggested
-  if (!isBlockSuggested) {
-    debugLogger(
-      `Suggested post check skipped because it's disabled :  ${isBlockSuggested}`
-    );
-  } else {
-    const isSuggested = await handleSuggestedPost(element);
-    if (isSuggested) {
+  const isSuggested = await handleSuggestedPost(element);
+  if (isSuggested) {
+    if (!isBlockSuggested) {
+      debugLogger(
+        `Suggested post removal skipped because it's disabled :  ${isBlockSuggested}`
+      );
+      return false;
+    } else {
+      hideBlockedElement(element);
       debugLogger("Found and removed a suggested post", element);
       return true;
     }
   }
 
   // Check if Sponsored
-  if (!isBlockSponsored) {
-    debugLogger(
-      `Sponsored post check skipped because it's disabled :  ${isBlockSponsored}`
-    );
-  } else {
-    const isSponsored = await handleSponsoredPost(element);
-    if (isSponsored) {
+  const isSponsored = await handleSponsoredPost(element);
+  if (isSponsored) {
+    if (!isBlockSponsored) {
+      debugLogger(
+        `Sponsored post removal skipped because it's disabled :  ${isBlockSponsored}`
+      );
+      return false;
+    } else {
+      hideBlockedElement(element);
       debugLogger("Found and removed a sponsored post:", element);
       return true;
     }
@@ -468,12 +502,15 @@ const observeLocation = async () => {
 };
 
 const loadStoredVariables = async () => {
-  const { blockSponsored, blockSuggested } = await browser.storage.local.get([
-    "blockSponsored",
-    "blockSuggested",
-  ]);
+  const { blockSponsored, blockSuggested, blockReels } =
+    await browser.storage.local.get([
+      "blockSponsored",
+      "blockSuggested",
+      "blockReels",
+    ]);
   isBlockSponsored = blockSponsored ?? true;
   isBlockSuggested = blockSuggested ?? true;
+  isBlockReels = blockReels ?? true;
 };
 
 // ---- START THE EXTENSION ----

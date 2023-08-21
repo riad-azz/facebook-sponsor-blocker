@@ -12,10 +12,12 @@ const loadStoredVariables = async () => {
     totalCount: count,
     blockSponsored,
     blockSuggested,
+    blockReels,
   } = await browser.storage.local.get([
     "totalCount",
     "blockSponsored",
     "blockSuggested",
+    "blockReels",
   ]);
   if (count) {
     totalCount = count;
@@ -27,6 +29,9 @@ const loadStoredVariables = async () => {
   }
   if (!blockSuggested) {
     await browser.storage.local.set({ blockSuggested: true });
+  }
+  if (!blockReels) {
+    await browser.storage.local.set({ blockReels: true });
   }
 };
 
