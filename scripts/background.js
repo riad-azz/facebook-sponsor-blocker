@@ -1,88 +1,89 @@
-// Background variables
+// Constant Variables
+const badgeBackgroundColor = { color: "grey" };
+const badgeTextColor = { color: "white" };
+
+// Mutable variables
 const activeTabs = {};
 let totalCount = 0;
 
-// Set the custom badge theme color
-browser.browserAction.setBadgeBackgroundColor({ color: "grey" });
-browser.browserAction.setBadgeTextColor({ color: "white" });
+// Set badge colors
+browser.browserAction.setBadgeBackgroundColor(badgeBackgroundColor);
+browser.browserAction.setBadgeTextColor(badgeTextColor);
 
-// Load total removed posts count from extension storage
+
 const loadStoredVariables = async () => {
-  const {
-    totalCount: count,
-    blockSponsored,
-    blockSuggested,
-    blockReels,
-  } = await browser.storage.local.get([
-    "totalCount",
-    "blockSponsored",
-    "blockSuggested",
-    "blockReels",
-  ]);
-  if (count) {
-    totalCount = count;
+  const { totalCount: _totalCount } =
+    await browser.storage.local.get([
+      "totalCount",
+      "blockSponsored",
+      "blockSuggested",
+      "blockSuggestedReels",
+    ]);
+
+
+  const setIfUndefined = async (key, value) => {
+    if (!(await browser.storage.local.get(key))[key]) {
+      await browser.storage.local.set({ [key]: value });
+    }
+  };
+
+  if (_totalCount) {
+    totalCount = _totalCount;
   } else {
-    await browser.storage.local.set({ totalCount: 0 });
+    await setIfUndefined("totalCount", 0);
   }
-  if (!blockSponsored) {
-    await browser.storage.local.set({ blockSponsored: true });
-  }
-  if (!blockSuggested) {
-    await browser.storage.local.set({ blockSuggested: true });
-  }
-  if (!blockReels) {
-    await browser.storage.local.set({ blockReels: true });
-  }
+
+
+  await setIfUndefined("blockSponsored", true);
+  await setIfUndefined("blockSuggested", true);
+  await setIfUndefined("blockSuggestedReels", true);
 };
 
-// Start count for the specified active tab
-const startTabCounter = (tabId) => {
+const handleStartTabCounter = (tabId) => {
   activeTabs[tabId] = 0;
 };
 
-// Update badge text for a specified active tab
-const updateTabBadgeCounter = (tabId) => {
-  browser.browserAction.setBadgeText({
-    tabId: tabId,
-    text: `${activeTabs[tabId]}`,
-  });
-};
-
-// Notify the popup page that the counter changed
-const updatePopupCounter = async (tabId) => {
-  tabCount = activeTabs[tabId];
-  const sending = browser.runtime.sendMessage({
-    title: "counter-updated",
-    totalCount,
-    tabCount,
-  });
-  sending.then(null, (error) => console.log("Popup page is not open"));
-};
-
-// Update the counter for specified tab and the total count
-const updateCounter = (tabId) => {
+const handleUpdateCounter = (tabId) => {
   totalCount += 1;
   activeTabs[tabId] += 1;
   browser.storage.local.set({ totalCount: totalCount });
-  updateTabBadgeCounter(tabId);
-  updatePopupCounter(tabId);
+
+  const tabCount = activeTabs[tabId];
+  // Update badge count
+  browser.browserAction.setBadgeText({
+    tabId: tabId,
+    text: `${tabCount}`,
+  }).then(null, (error) => console.log("Couldn't update badge count,", error));
+  // Update popup counter
+  browser.runtime.sendMessage({
+    title: "COUNTER_UPDATED",
+    totalCount,
+    tabCount,
+  }).then(null, (error) => console.log("Couldn't update popup count"));;
 };
 
-// On message listener ( from content and popup scripts )
+const handleGetCounter = (request, sendResponse) => {
+  const response = {
+    totalCount,
+    tabCount: activeTabs[request.tabId],
+  };
+  sendResponse(response);
+}
+
+// On message listener (from content and popup scripts)
 const handleOnMessage = (request, sender, sendResponse) => {
-  if (request.title === "start-tab-counter") {
-    const currentTabId = sender.tab.id;
-    startTabCounter(currentTabId);
-  } else if (request.title === "update-counter") {
-    const currentTabId = sender.tab.id;
-    updateCounter(currentTabId);
-  } else if (request.title === "get-counter") {
-    const currentTabId = request.tabId;
-    const response = {
-      totalCount,
-      tabCount: activeTabs[currentTabId],
-    };
-    sendResponse(response);
+  switch (request.title) {
+    case "START_TAB_COUNTER":
+      handleStartTabCounter(sender.tab.id);
+      break;
+    case "UPDATE_COUNTER":
+      handleUpdateCounter(sender.tab.id);
+      break;
+    case "GET_COUNTER":
+      handleGetCounter(request, sendResponse);
+      break;
+    default:
+      console.log("Unknown message received in background.js:", request.title);
   }
 };
 
@@ -94,9 +95,10 @@ const handleRemovedTabs = (tabId, removeInfo) => {
 };
 
 // ------ MAIN -----
-function runApp() {
+async function runApp() {
   // Set up app variables
-  loadStoredVariables();
+  await loadStoredVariables();
+
   // Add event listeners
   browser.runtime.onMessage.addListener(handleOnMessage);
   browser.tabs.onRemoved.addListener(handleRemovedTabs);

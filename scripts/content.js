@@ -4,160 +4,6 @@ const DEBUG = true;
 // Constant variables
 const sponsorWordsFilter = [
   "Sponsored",
-  "स्पॉन्सर्ड",
-  "مُموَّل",
-  "赞助内容",
-  "広告",
-  "دارای پشتیبانی مالی",
-  "La maalgeliyey",
-  "Geborg",
-  "Reklam",
-  "Ditaja",
-  "Kanthi Sponsor",
-  "Paeroniet",
-  "Patrocinat",
-  "Spunsurizatu",
-  "Noddwyd",
-  "Babestua",
-  "May Sponsor",
-  "Yoɓanaama",
-  "Sponsorizât",
-  "Stuðlað",
-  "Urraithe",
-  "Sponsored", // English
-  "Patrocinado", // Spanish
-  "Sponsorisé", // French
-  "Gesponsert", // German
-  "Sponsorizzato", // Italian
-  "Patrocinado", // Portuguese
-  "Спонсируемый", // Russian
-  "スポンサード", // Japanese
-  "赞助", // Chinese (Simplified)
-  "प्रायोजित", // Hindi
-  "스폰서", // Korean
-  "Gesponsord", // Dutch
-  "Sponsor", // Swedish
-  "Sponsorerede", // Danish
-  "Sponset", // Norwegian
-  "Sponsoroidut", // Finnish
-  "Sponsorowane", // Polish
-  "Sponsorlu", // Turkish
-  "Χορηγούμενο", // Greek
-  "Sponzorováno", // Czech
-  "Támogatott", // Hungarian
-  "Sponsorizat", // Romanian
-  "Disponsori", // Indonesian
-  "Được tài trợ", // Vietnamese
-  "ผู้สนับสนุน", // Thai
-  "Ditaja", // Malay
-  "ממומן", // Hebrew
-  "Спонсоровано", // Ukrainian
-  "Спонсорирано", // Bulgarian
-  "Patrocinat", // Catalan
-  "Sponsoreret", // Danish
-  "Sponsorált", // Hungarian
-  "Χορηγούμενη", // Greek
-  "Sponsorowane", // Polish
-  "Подпомогнат", // Macedonian
-  "Sponsorisht", // Albanian
-  "Patrocinat", // Romanian
-  "Sponsrad", // Swedish
-  "Sponzorirano", // Slovenian
-  "Patrocinat", // Occitan
-  "Sponsoroitu", // Finnish
-  "Sponsrad", // Swedish
-  "Sponzorirano", // Bosnian
-  "Sponsorerad", // Swedish
-  "Sponsort", // Luxembourgish
-  "Esponsorizado", // Galician
-  "Patrocinado", // Asturian
-  "פּאַטראָספירט", // Yiddish
-  "ಸ್ಪಾನ್ಸರ್", // Kannada
-  "முகாமையான", // Tamil
-  "স্পন্সরযোগ্য", // Bengali
-  "స్పాన్సర్", // Telugu
-  "സ്പോൺസർഡ്", // Malayalam
-  "ස්පෝන්සර්", // Sinhala
-  "سپانسر", // Pashto
-  "پنچانگی", // Urdu
-  "سپانسر", // Kashmiri
-  "سپانسر", // Sindhi
-  "পৰমৰ্শক", // Assamese
-  "স্পনসর", // Bengali
-  "ସ୍ପନସରଡ୍", // Odia
-  "স্পনসরকৃত", // Assamese
-  "স্পনসরকৃত", // Bengali
-  "સ્પોન્સર", // Gujarati
-  "સ્પોન્સરડ", // Gujarati
-  "संवर्धित", // Marathi
-  "स्पोन्सर्ड", // Nepali
-  "সৰ্বদলীয়", // Assamese
-  "সহায়িত", // Bengali
-  "ପ୍ରଯୋଜିତ", // Odia
-  "பொறுப்பு", // Tamil
-  "ప్రొత్సాహించబడిన", // Telugu
-  "ಬೆಂಬಲಿತ", // Kannada
-  "പ്രായോജിച്ചത്", // Malayalam
-  "සහභාගී", // Sinhala
-  "خاندهار", // Pashto
-  "نیازمند", // Urdu
-  "سامارا", // Kashmiri
-  "سپونسرډ", // Pashto
-  "ସଂରକ୍ଷିତ", // Odia
-  "স্বাস্থ্যকর", // Bengali
-  "સંરક્ષિત", // Gujarati
-  "संगठित", // Marathi
-  "प्रायोजित", // Nepali
-  "પોતાનીને", // Gujarati
-  "தனித்துவ", // Tamil
-  "అమలు", // Telugu
-  "ನಿರಪೇಕ್ಷ", // Kannada
-  "സ്വന്തമായ", // Malayalam
-  "වෙනුවෙන්", // Sinhala
-  "تحت", // Pashto
-  "زیر", // Urdu
-  "وستوئید", // Kashmiri
-  "دریځیږی", // Pashto
-  "ରୂପରେ", // Odia
-  "উজ্জ্বল", // Bengali
-  "ઉજ્જવળ", // Gujarati
-  "निरंकुश", // Marathi
-  "प्रायोजित", // Nepali
-  "પુરાવાં", // Gujarati
-  "அணுகல்", // Tamil
-  "గొత్తు", // Telugu
-  "ಹಕ್ಕುದಾರರು", // Kannada
-  "അനുസരിച്ച്", // Malayalam
-  "වරක්", // Sinhala
-  "په", // Pashto
-  "مطابق", // Urdu
-  "جيبنه", // Kashmiri
-  "پامیګر", // Pashto
-  "ମଧ୍ୟ", // Odia
-  "উপর", // Bengali
-  "પર", // Gujarati
-  "सामग्री", // Marathi
-  "प्रायोजित", // Nepali
-  "પર", // Gujarati
-  "மேல்", // Tamil
-  "పైన", // Telugu
-  "ಮೇಲೆ", // Kannada
-  "പതിപ്പിക്കപ്പെട്ട", // Malayalam
-  "සඳහා", // Sinhala
-  "دی", // Pashto
-  "کی", // Urdu
-  "حسب", // Arabic
-  "آژانس", // Persian
-  "ترویجی", // Persian
-  "تبلیغی", // Persian
-  "حمایتی", // Persian
-  "حمایتی", // Persian
-  "تبلیغاتی", // Persian
-  "تبلیغاتی", // Persian
-  "تبلیغاتی", // Persian
-  "ترویجی", // Persian
-  "دعاوی", // Persian
-  "تبلیغی", // Persian
 ];
 
 // Mutable variables
@@ -165,7 +11,7 @@ let body;
 let removing = false;
 let isBlockSponsored = true;
 let isBlockSuggested = true;
-let isBlockReels = true;
+let isBlockSuggestedReels = true;
 let currentLocation = document.location.href;
 
 // Selector variables
@@ -174,7 +20,7 @@ const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const tagSelector = ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv";
 const textSelector = "span > span > span";
 const useSelector = "use[*|href]";
-const reelsSelector = "a[href='/reels/create/']";
+const suggestedReelsSelector = "a[href='/reels/create/']";
 
 // ---- UTILS ----
 
@@ -185,35 +31,31 @@ const debugLogger = (...args) => {
   }
 };
 
-const startTabCounter = async () => {
-  await browser.runtime.sendMessage({ title: "start-tab-counter" });
-  debugLogger("Tab counter ready request sent from content.js");
-};
-
-const updateCounter = async () => {
-  browser.runtime.sendMessage({ title: "update-counter" });
-  debugLogger("Badge counter update request sent from content.js");
+const sendMessageToBackground = async (title, ...args) => {
+  browser.runtime.sendMessage({ title, ...args });
+  debugLogger(`Message sent to background script: ${title}`);
 };
 
 const handleMessages = (request) => {
-  if (request.title === "block-sponsored-updated") {
-    isBlockSponsored = request.value;
-    if (isBlockSponsored) {
-      scanAllPosts();
-    }
-    debugLogger("Block Sponsored updated in content.js:", isBlockSponsored);
-  } else if (request.title === "block-suggested-updated") {
-    isBlockSuggested = request.value;
-    if (isBlockSuggested) {
-      scanAllPosts();
-    }
-    debugLogger("Block Suggested updated in content.js:", isBlockSuggested);
-  } else if (request.title === "block-reels-updated") {
-    isBlockReels = request.value;
-    if (isBlockReels) {
-      scanAllPosts();
-    }
-    debugLogger("Block Reels updated in content.js:", isBlockReels);
+  switch (request.title) {
+    case 'BLOCK_SPONSORED_UPDATED':
+      isBlockSponsored = request.value;
+      debugLogger("Block Sponsored updated in content.js:", isBlockSponsored);
+      break;
+    case 'BLOCK_SUGGESTED_UPDATED':
+      isBlockSuggested = request.value;
+      debugLogger("Block Suggested updated in content.js:", isBlockSuggested);
+      break;
+    case 'BLOCK_SUGGESTED_REELS_UPDATED':
+      isBlockSuggestedReels = request.value;
+      debugLogger("Block Reels updated in content.js:", isBlockSuggestedReels);
+      break;
+    default:
+      console.log("Unknown message received in content.js:", request.title);
+  }
+  // If the value is true, scan all posts and remove previously skipped elements
+  if (request.value) {
+    scanAllPosts();
   }
 };
 
@@ -245,77 +87,78 @@ const waitForElementSelector = async (
   });
 };
 
-const removeElement = async (element) => {
-  if (element.isConnected) {
-    element.remove();
-  }
-};
 
-const deleteInnerHtml = async (element) => {
+const deleteInnerHtml = (element) => {
   if (element.isConnected) {
     element.innerHTML = "";
   }
 };
 
-const hideElement = async (element) => {
+const hideElement = (element) => {
   if (element.isConnected) {
     element.className = "";
     element.style.display = "none";
   }
 };
 
-const hideBlockedElement = async (element) => {
+const hideBlockedElement = (element) => {
   if (element.isConnected) {
     hideElement(element);
-    updateCounter();
+    sendMessageToBackground('UPDATE_COUNTER');
   }
 };
 
 const isMainFeedLocation = (currentUrl) => {
   const feedRegex = /^https:\/\/www\.facebook\.com\/\?.*/;
-  if (
-    currentUrl !== "https://www.facebook.com/" &&
-    !feedRegex.test(currentUrl)
-  ) {
-    return false;
-  }
-  return true;
+  return currentUrl === "https://www.facebook.com/" || feedRegex.test(currentUrl);
 };
 
 const isSponsoredPost = (combination) => {
   const numRegex = /\d/;
-  if (numRegex.test(combination)) return false;
-
   const spaceRegex = /\s/;
-  if (spaceRegex.test(combination)) return false;
-
-  if (combination.length <= 1) return false;
-
-  return true;
+  return (
+    !numRegex.test(combination) &&
+    !spaceRegex.test(combination) &&
+    combination.length > 1
+  );
 };
 
 // ---- SUGGESTED REELS REMOVAL LOGIC ----
-const handleReels = async (post) => {
-  const isReels = post.querySelector(reelsSelector);
-  if (!isReels) {
-    return false;
+const handleSuggestedReels = async (post) => {
+  const isReels = !!post.querySelector(suggestedReelsSelector);
+  if (!isReels) return false;
+
+  if (!isBlockSuggestedReels) {
+    debugLogger(
+      `Suggested reels removal skipped because it's disabled :  ${isBlockSuggestedReels}`
+    );
+    return true;
   }
 
+  hideBlockedElement(post);
+  debugLogger("Found and removed suggested reels:", post);
   return true;
 };
 
 // ---- SUGGESTED POSTS REMOVAL LOGIC ----
 const handleSuggestedPost = async (post) => {
-  const isSuggested = post.querySelector(suggestedSelector);
-  if (!isSuggested) {
-    return false;
+  const isSuggested = !!post.querySelector(suggestedSelector);
+  if (!isSuggested) return false;
+
+  if (!isBlockSuggested) {
+    debugLogger(
+      `Suggested post removal skipped because it's disabled :  ${isBlockSuggested}`
+    );
+    return true;
   }
 
+  hideBlockedElement(post);
+  debugLogger("Found and removed a suggested post", post);
   return true;
 };
 
 // ---- SPONSORED POSTS REMOVAL LOGIC ----
-const legacySponsoredPostRemoval = (post) => {
+const checkSponsoredPostLegacy = (post) => {
   const useElement = post.querySelector(useSelector);
   if (!useElement) return false;
 
@@ -340,7 +183,7 @@ const legacySponsoredPostRemoval = (post) => {
   return false;
 };
 
-const sponsoredPostRemoval = (post) => {
+const checkSponsoredPost = (post) => {
   const tagElement = post.querySelector(tagSelector);
   if (!tagElement) {
     // debugLogger("Tag element not found on post:", post);
@@ -377,13 +220,24 @@ const sponsoredPostRemoval = (post) => {
 };
 
 const handleSponsoredPost = async (post) => {
-  const isSponsored = sponsoredPostRemoval(post);
+  let isSponsored = false;
+  isSponsored = checkSponsoredPost(post);
   if (!isSponsored) {
-    const legacyIsSponsored = legacySponsoredPostRemoval(post);
-    if (!legacyIsSponsored) {
-      return false;
-    }
+    isSponsored = checkSponsoredPostLegacy(post);
   }
+
+  if (!isSponsored) return false;
+
+
+  if (!isBlockSponsored) {
+    debugLogger(
+      `Sponsored post removal skipped because it's disabled :  ${isBlockSponsored}`
+    );
+    return true;
+  }
+
+  hideBlockedElement(post);
+  debugLogger("Found and removed a sponsored post:", post);
   return true;
 };
 
@@ -392,51 +246,16 @@ const handleSponsoredPost = async (post) => {
 // Check if a post is Sponsored or Suggested
 const scanSinglePost = async (element) => {
   // Check if Suggested reels
-  const isReels = await handleReels(element);
-  if (isReels) {
-    if (!isBlockReels) {
-      debugLogger(
-        `Reels removal skipped because it's disabled :  ${isBlockReels}`
-      );
-      return false;
-    } else {
-      hideBlockedElement(element);
-      debugLogger("Found and removed a reels post:", element);
-      return true;
-    }
-  }
+  const isReels = await handleSuggestedReels(element);
+  if (isReels) return;
 
   // Check if Suggested
   const isSuggested = await handleSuggestedPost(element);
-  if (isSuggested) {
-    if (!isBlockSuggested) {
-      debugLogger(
-        `Suggested post removal skipped because it's disabled :  ${isBlockSuggested}`
-      );
-      return false;
-    } else {
-      hideBlockedElement(element);
-      debugLogger("Found and removed a suggested post", element);
-      return true;
-    }
-  }
+  if (isSuggested) return;
 
   // Check if Sponsored
   const isSponsored = await handleSponsoredPost(element);
-  if (isSponsored) {
-    if (!isBlockSponsored) {
-      debugLogger(
-        `Sponsored post removal skipped because it's disabled :  ${isBlockSponsored}`
-      );
-      return false;
-    } else {
-      hideBlockedElement(element);
-      debugLogger("Found and removed a sponsored post:", element);
-      return true;
-    }
-  }
-
-  return false;
+  if (isSponsored) return;
 };
 
 // Check current feed for Sponsored & Suggested posts.
@@ -444,7 +263,7 @@ const scanAllPosts = async () => {
   if (removing) return;
   removing = true;
 
-  for (post of body.querySelectorAll(postsSelector)) {
+  for (const post of body.querySelectorAll(postsSelector)) {
     scanSinglePost(post);
   }
   removing = false;
@@ -453,31 +272,27 @@ const scanAllPosts = async () => {
 // ---- OBSERVERS ----
 
 // Location observer
-const handleLocation = (mutations, observer) => {
-  if (currentLocation != document.location.href) {
-    debugLogger(
-      "Location changed from",
-      currentLocation,
-      "to",
-      document.location.href
-    );
-
+const handleLocation = () => {
+  if (currentLocation !== document.location.href) {
+    // Update current location URL
     currentLocation = document.location.href;
-    const validUrl = isMainFeedLocation(currentLocation);
-    if (!validUrl) {
-      // STOP FEED OBSERVER
+    debugLogger(`Location changed from ${currentLocation} to ${document.location.href}`);
+
+
+    // Only observe the main feed (facebook home page)
+    const isCorrectLocation = isMainFeedLocation(currentLocation);
+    if (isCorrectLocation) {
+      observeFeed();
+    } else {
       feedObserver.disconnect();
-      return;
     }
-    // START THE FEED OBSERVER
-    observeFeed();
   }
 };
 const locationObserver = new MutationObserver(handleLocation);
 
 // Feed observer
-const handleFeed = (mutationList, observer) => {
-  for (const mutation of mutationList) {
+const handleFeed = (mutations) => {
+  for (const mutation of mutations) {
     if ((mutation.type === "childList") & (mutation.addedNodes.length > 0)) {
       scanAllPosts();
       break;
@@ -487,8 +302,10 @@ const handleFeed = (mutationList, observer) => {
 const feedObserver = new MutationObserver(handleFeed);
 
 // ---- Observers Functions ----
-const observeFeed = async () => {
+const observeFeed = () => {
+  // Initial Scan
   scanAllPosts();
+  // Listen feed changes and perform a scan whenever new elements are added
   feedObserver.observe(body, {
     attributes: true,
     childList: true,
@@ -497,26 +314,26 @@ const observeFeed = async () => {
 };
 
 const observeLocation = async () => {
-  // URL CHANGE OBSERVER
+  // Listen page changes and check if the URL changed
   locationObserver.observe(body, { childList: true, subtree: true });
 };
 
 const loadStoredVariables = async () => {
-  const { blockSponsored, blockSuggested, blockReels } =
+  const { blockSponsored, blockSuggested, blockReels: blockSuggestedReels } =
     await browser.storage.local.get([
       "blockSponsored",
       "blockSuggested",
-      "blockReels",
+      "blockSuggestedReels",
     ]);
   isBlockSponsored = blockSponsored ?? true;
   isBlockSuggested = blockSuggested ?? true;
-  isBlockReels = blockReels ?? true;
+  isBlockSuggestedReels = blockSuggestedReels ?? true;
 };
 
 // ---- START THE EXTENSION ----
 async function runApp() {
   // Start the counter for blocked posts in active tab
-  await startTabCounter();
+  await sendMessageToBackground('START_TAB_COUNTER');
   // Set blocker configs
   await loadStoredVariables();
   // Set body element to check for DOM changes
