@@ -169,7 +169,7 @@ let isBlockSuggestedReels = true;
 let currentLocation = document.location.href;
 
 // Selector variables
-const suggestedSelector = "div.xcnsx8t";
+const suggestedSelector = "div.x1pi30zi.x1swvt13 > div.xdrs2t1.x1q0q8m5.xso031l.x1l90r2v.xyamay9.x1n2onr6 span";
 const postsSelector = "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z";
 const tagSelector = ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv";
 const textSelector = "span > span > span";
@@ -400,8 +400,8 @@ const handleSponsoredPost = async (post) => {
 // Check if a post is Sponsored or Suggested
 const scanSinglePost = async (element) => {
   // Check if Suggested reels
-  const isReels = await handleSuggestedReels(element);
-  if (isReels) return;
+  const isSuggestedReels = await handleSuggestedReels(element);
+  if (isSuggestedReels) return;
 
   // Check if Suggested
   const isSuggested = await handleSuggestedPost(element);
