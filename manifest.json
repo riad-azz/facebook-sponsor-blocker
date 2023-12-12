@@ -11,13 +11,17 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
+      "js": [
+        "content_scripts/constants.js",
+        "content_scripts/helpers.js",
+        "content_scripts/main.js"
+      ],
       "matches": ["*://*.facebook.com/*"],
       "run_at": "document_start"
     }
   ],
   "background": {
-    "scripts": ["scripts/background.js"]
+    "scripts": ["background_scripts/index.js"]
   },
   "browser_action": {
     "default_icon": {
