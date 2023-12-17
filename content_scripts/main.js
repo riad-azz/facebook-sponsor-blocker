@@ -11,10 +11,6 @@
 /* global getStorageValues */
 /* global listenToStorageChange */
 
-// Mutable variables
-let body;
-let removing = false;
-
 const blockRules = {
   blockSponsored: true,
   blockSuggested: true,
@@ -22,7 +18,7 @@ const blockRules = {
 };
 
 
-const initRulesConfigs = async () => {
+const initBlockRules = async () => {
   const handleBlockRulesChange = (changes, changedKeys) => {
     // Check if any of the changed keys are in the blockRules object
     const isBlockRulesUpdate = changedKeys.some((key) => key in blockRules);
@@ -40,6 +36,7 @@ const initRulesConfigs = async () => {
     }
   };
 
+  // Get stored block rules
   const storedRules = await getStorageValues([
     "blockSponsored",
     "blockSuggested",
@@ -53,10 +50,20 @@ const initRulesConfigs = async () => {
   listenToStorageChange(handleBlockRulesChange);
 }
 
-
 const runApp = async () => {
-  await initRulesConfigs();
+  await initBlockRules();
 }
 
+const observeFeed = () => {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        console.log(mutation.addedNodes)
+      }
+    });
+  })
+
+  observer.observe(document, { childList: true });
+}
 
 runApp()

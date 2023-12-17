@@ -16,7 +16,7 @@
         "content_scripts/helpers.js",
         "content_scripts/main.js"
       ],
-      "matches": ["*://*.facebook.com/*"],
+      "matches": ["*://*.facebook.com/*", "*://*.*facebook.com/*"],
       "run_at": "document_start"
     }
   ],
