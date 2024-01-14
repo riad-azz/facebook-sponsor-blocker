@@ -1,20 +1,19 @@
 //  ------------ constants imports ------------
 
-/* global PostSelectors */
 /* global FeedSelector */
 
 // ------------ helpers imports ------------
 
-/* global debugLogger */
 /* global waitForElement */
 /* global getStorageValues */
 /* global listenToStorageChange */
 
 //  ------------ Blockers imports ------------
 
-/* global handleSuggestedPosts */
 /* global handleSuggestedReels */
 /* global handleSuggestedGroups */
+/* global handleSuggestedPosts */
+/* global handleSponsoredPosts */
 
 (async () => {
   var feedElement = null;
@@ -64,17 +63,36 @@
 
     // Listen for block rules changes
     listenToStorageChange(handleBlockRulesChange);
-  }
+  };
 
   const scanFeedPost = (element) => {
     // Check if Suggested reels
-    const isSuggestedReels = handleSuggestedReels(element, blockRules.blockSuggestedReels);
+    const isSuggestedReels = handleSuggestedReels(
+      element,
+      blockRules.blockSuggestedReels
+    );
     if (isSuggestedReels) return;
 
     // Check if Suggested groups
-    const isSuggestedGroups = handleSuggestedGroups(element, blockRules.blockSuggestedGroups);
+    const isSuggestedGroups = handleSuggestedGroups(
+      element,
+      blockRules.blockSuggestedGroups
+    );
     if (isSuggestedGroups) return;
 
+    // Check if Suggested posts
+    const isSuggestedPost = handleSuggestedPosts(
+      element,
+      blockRules.blockSuggested
+    );
+    if (isSuggestedPost) return;
+
+    // Check if Sponsored posts
+    const isSponsoredPost = handleSponsoredPosts(
+      element,
+      blockRules.blockSponsored
+    );
+    if (isSponsoredPost) return;
   };
 
   const scanFeedPosts = async (posts) => {
@@ -83,30 +101,28 @@
     }
   };
 
-
   const observeFeed = async () => {
     // Wait for the feed element and set it globally
     feedElement = await waitForElement(FeedSelector, document, true);
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
           scanFeedPosts(mutation.addedNodes);
         }
       });
-    })
+    });
 
     observer.observe(feedElement, { childList: true });
 
     scanFeedPosts(feedElement.children);
-  }
-
+  };
 
   const runFeedBlocker = async () => {
     await initBlockRules();
     await observeFeed();
-  }
+  };
 
   // Run the feed blocker
-  runFeedBlocker()
-})()
+  runFeedBlocker();
+})();

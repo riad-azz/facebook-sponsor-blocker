@@ -2,12 +2,9 @@
   "name": "facebook-sponsor-blocker",
   "version": "1.0.0",
   "description": "Block and remove sponsored and suggested posts from your facebook feed.",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint \"content_scripts/**/*.js\"",
+    "pretty": "prettier --write \"content_scripts/**/*.js\" && prettier --write \"popup/**/*.{js,css,html}\""
   },
   "keywords": [],
   "author": "",

@@ -1,14 +1,15 @@
 {
+  "extends": ["eslint:recommended"],
   "env": {
     "browser": true,
-    "es6": true,
+    "es2021": true,
     "webextensions": true
   },
   "parserOptions": {
-    "ecmaVersion": 2023
+    "ecmaVersion": "latest",
+    "sourceType": "module"
   },
   "rules": {
     "no-unused-vars": "off"
-  },
-  "extends": ["eslint:recommended"]
+  }
 }

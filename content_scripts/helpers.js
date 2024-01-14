@@ -41,7 +41,7 @@ const hideElement = async (element) => {
 /* exported waitForElement */
 /**
  * Wait for an element with the given selector to appear in the DOM.
- * 
+ *
  * @param {string} selector - The selector of the element to wait for.
  * @param {HTMLElement} parent - The parent element to search within. Defaults to the document.
  * @param {boolean} infinite - Whether to wait indefinitely or give up after a certain number of tries. Defaults to false.
@@ -70,7 +70,6 @@ const waitForElement = async (
   });
 };
 
-
 /* exported getStorageValues */
 /**
  * Retrieves values from local storage based on the provided keys.
@@ -92,19 +91,13 @@ const getStorageValues = async (keys) => {
  * @typedef Changes
  * @property {Record<string, {newValue: any, oldValue: any}>} changes - The object of the change event.
  * @typedef ChangedKeys
- * @property {string[]} changedKeys - The array of changed keys. 
+ * @property {string[]} changedKeys - The array of changed keys.
  * @param {Function} callback - The callback function to be called when storage changes.
- * 
+ *
  */
 const listenToStorageChange = (callback) => {
   browser.storage.onChanged.addListener((changes, area) => {
-
     const changedKeys = Object.keys(changes);
-    callback(
-      changes,
-      changedKeys
-    );
+    callback(changes, changedKeys);
   });
-}
-
-
+};
