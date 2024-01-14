@@ -10,7 +10,7 @@ const DEBUG = true;
 const debugLogger = (...args) => {
   // Show debugging info in the console only if DEBUG is set to true
   if (DEBUG) {
-    console.log(...args);
+    console.debug(...args);
   }
 };
 
@@ -27,11 +27,15 @@ const deleteInnerHtml = (element) => {
  *
  * @param {HTMLElement} element - The element to hide.
  */
-const hideElement = (element) => {
+const hideElement = async (element) => {
   if (element.isConnected) {
     element.className = "";
     element.style.display = "none";
   }
+  const { blockedCount = 0 } = await getStorageValues(["blockedCount"]);
+
+  const newValue = blockedCount + 1;
+  browser.storage.local.set({ blockedCount: newValue });
 };
 
 /* exported waitForElement */
@@ -62,7 +66,7 @@ const waitForElement = async (
       } else if (!infinite) {
         remainingTries--;
       }
-    }, 100);
+    }, 500);
   });
 };
 

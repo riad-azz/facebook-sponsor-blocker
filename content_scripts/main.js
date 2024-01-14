@@ -1,8 +1,7 @@
 //  ------------ constants imports ------------
 
 /* global PostSelectors */
-/* global ContentMessages */
-/* global sponsorWordsFilter */
+/* global FeedSelector */
 
 // ------------ helpers imports ------------
 
@@ -11,59 +10,103 @@
 /* global getStorageValues */
 /* global listenToStorageChange */
 
-const blockRules = {
-  blockSponsored: true,
-  blockSuggested: true,
-  blockSuggestedReels: true,
-};
+//  ------------ Blockers imports ------------
 
+/* global handleSuggestedPosts */
+/* global handleSuggestedReels */
+/* global handleSuggestedGroups */
 
-const initBlockRules = async () => {
-  const handleBlockRulesChange = (changes, changedKeys) => {
-    // Check if any of the changed keys are in the blockRules object
-    const isBlockRulesUpdate = changedKeys.some((key) => key in blockRules);
+(async () => {
+  var feedElement = null;
 
-    // If no blockRules were updated, return
-    if (!isBlockRulesUpdate) {
-      return;
-    }
+  var blockRules = {
+    blockSponsored: true,
+    blockSuggested: true,
+    blockSuggestedReels: true,
+    blockSuggestedGroups: true,
+  };
 
-    // Update the blockRules object with the new values for the changed keys
-    for (const key of changedKeys) {
-      if (key in blockRules) {
-        blockRules[key] = changes[key].newValue;
+  const initBlockRules = async () => {
+    const handleBlockRulesChange = (changes, changedKeys) => {
+      // Check if any of the changed keys are in the blockRules object
+      const isBlockRulesUpdate = changedKeys.some((key) => key in blockRules);
+
+      // If no blockRules were updated, return
+      if (!isBlockRulesUpdate) {
+        return;
       }
+
+      // Update the blockRules object with the new values for the changed keys
+      for (const key of changedKeys) {
+        if (key in blockRules) {
+          blockRules[key] = changes[key].newValue;
+        }
+      }
+
+      // Scan previous posts if block rules were updated
+      if (feedElement) {
+        scanFeedPosts(feedElement.children);
+      }
+    };
+
+    // Get stored block rules
+    const storedRules = await getStorageValues([
+      "blockSponsored",
+      "blockSuggested",
+      "blockSuggestedReels",
+      "blockSuggestedGroups",
+    ]);
+
+    blockRules.blockSponsored = storedRules.blockSponsored ?? true;
+    blockRules.blockSuggested = storedRules.blockSuggested ?? true;
+    blockRules.blockSuggestedReels = storedRules.blockSuggestedReels ?? true;
+    blockRules.blockSuggestedGroups = storedRules.blockSuggestedGroups ?? true;
+
+    // Listen for block rules changes
+    listenToStorageChange(handleBlockRulesChange);
+  }
+
+  const scanFeedPost = (element) => {
+    // Check if Suggested reels
+    const isSuggestedReels = handleSuggestedReels(element, blockRules.blockSuggestedReels);
+    if (isSuggestedReels) return;
+
+    // Check if Suggested groups
+    const isSuggestedGroups = handleSuggestedGroups(element, blockRules.blockSuggestedGroups);
+    if (isSuggestedGroups) return;
+
+  };
+
+  const scanFeedPosts = async (posts) => {
+    for (const post of posts) {
+      scanFeedPost(post);
     }
   };
 
-  // Get stored block rules
-  const storedRules = await getStorageValues([
-    "blockSponsored",
-    "blockSuggested",
-    "blockSuggestedReels",
-  ]);
-  blockRules.blockSponsored = storedRules.blockSponsored ?? true;
-  blockRules.blockSuggested = storedRules.blockSuggested ?? true;
-  blockRules.blockSuggestedReels = storedRules.blockSuggestedReels ?? true;
 
-  // Listen for block rules changes
-  listenToStorageChange(handleBlockRulesChange);
-}
+  const observeFeed = async () => {
+    // Wait for the feed element and set it globally
+    feedElement = await waitForElement(FeedSelector, document, true);
 
-const runApp = async () => {
-  await initBlockRules();
-}
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          scanFeedPosts(mutation.addedNodes);
+        }
+      });
+    })
 
-const observeFeed = () => {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        console.log(mutation.addedNodes)
-      }
-    });
-  })
+    observer.observe(feedElement, { childList: true });
 
-  observer.observe(document, { childList: true });
-}
+    scanFeedPosts(feedElement.children);
+  }
 
-runApp()
+
+  const runFeedBlocker = async () => {
+    await initBlockRules();
+    await observeFeed();
+  }
+
+  // Run the feed blocker
+  runFeedBlocker()
+})()

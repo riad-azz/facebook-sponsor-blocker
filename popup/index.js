@@ -7,9 +7,9 @@
   // ------------ Block rules inputs ------------
   const sponsoredCheckbox = document.getElementById("sponsored-checkbox");
   const suggestedCheckbox = document.getElementById("suggested-checkbox");
-  const suggestedReelsCheckbox = document.getElementById(
-    "suggested-reels-checkbox"
-  );
+  const suggestedReelsCheckbox = document.getElementById("suggested-reels-checkbox");
+  const suggestedGroupsCheckbox = document.getElementById("suggested-groups-checkbox");
+
   // ------------ Blocked count display ------------
   const totalCountElement = document.getElementById("fsb-total-count");
 
@@ -31,23 +31,33 @@
     browser.storage.local.set({ blockSuggestedReels: value });
   };
 
+  // Listen for groups checkbox changes
+  const handleSuggestedGroups = async (event) => {
+    const value = event.target.checked;
+    browser.storage.local.set({ blockSuggestedGroups: value });
+  };
+
   const runPopupScript = async () => {
-    const { blockedCount = 0, blockSuggested, blockSponsored, blockSuggestedReels } =
+    const { blockedCount = 0, blockSuggested, blockSponsored, blockSuggestedReels, blockSuggestedGroups } =
       await getStorageValues([
         "blockedCount",
         "blockSponsored",
         "blockSuggested",
         "blockSuggestedReels",
+        "blockSuggestedGroups",
       ]);
 
     // Set initial block rules values
     sponsoredCheckbox.checked = blockSponsored ?? true;
     suggestedCheckbox.checked = blockSuggested ?? true;
     suggestedReelsCheckbox.checked = blockSuggestedReels ?? true;
+    suggestedGroupsCheckbox.checked = blockSuggestedGroups ?? true;
+
     // Observe block rules input changes
     sponsoredCheckbox.addEventListener("change", handleSponsored);
     suggestedCheckbox.addEventListener("change", handleSuggested);
     suggestedReelsCheckbox.addEventListener("change", handleSuggestedReels);
+    suggestedGroupsCheckbox.addEventListener("change", handleSuggestedGroups);
 
     // Update total count
     totalCountElement.innerText = `${blockedCount}`;

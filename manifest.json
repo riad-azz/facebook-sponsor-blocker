@@ -14,9 +14,13 @@
       "js": [
         "content_scripts/constants.js",
         "content_scripts/helpers.js",
+        "content_scripts/sponsored-posts.js",
+        "content_scripts/suggested-posts.js",
+        "content_scripts/suggested-reels.js",
+        "content_scripts/suggested-groups.js",
         "content_scripts/main.js"
       ],
-      "matches": ["*://*.facebook.com/*", "*://*.*facebook.com/*"],
+      "matches": ["*://*.facebook.com/*"],
       "run_at": "document_start"
     }
   ],
