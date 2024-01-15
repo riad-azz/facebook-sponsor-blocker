@@ -3,23 +3,25 @@
 /* global debugLogger */
 /* global hideElement */
 
-const SuggestedReelsSelector = "a[href='/reels/create/']";
-
 /* exported handleSuggestedReels */
 /**
  * Handles suggested reels.
  *
  * @param {Element} post - The post element.
  * @param {boolean} [isBlocking=true] - Whether to block the suggested reels or not.
- * @return {boolean} Returns true if the suggested reels was detected, otherwise false.
+ * @return {boolean} Returns true if the suggested reels was removed, otherwise false.
  */
 const handleSuggestedReels = (post, isBlocking = true) => {
-  const _isSuggestedReels = !!post.querySelector(SuggestedReelsSelector);
-  if (!_isSuggestedReels) return false;
+  const SELECTOR = "a[href='/reels/create/']";
+
+  const isSuggestedReels = !!post.querySelector(SELECTOR);
+  if (!isSuggestedReels) {
+    return false;
+  }
 
   if (!isBlocking) {
     debugLogger(`Suggested reels removal skipped : ${isBlocking}`);
-    return true;
+    return false;
   }
 
   hideElement(post);

@@ -31,11 +31,10 @@ const hideElement = async (element) => {
   if (element.isConnected) {
     element.className = "";
     element.style.display = "none";
+    return true;
   }
-  const { blockedCount = 0 } = await getStorageValues(["blockedCount"]);
 
-  const newValue = blockedCount + 1;
-  browser.storage.local.set({ blockedCount: newValue });
+  return false;
 };
 
 /* exported waitForElement */
