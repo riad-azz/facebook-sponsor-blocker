@@ -155,6 +155,11 @@ function sponsoredPlayThePuzzle(post) {
     "span > span > span > a > span > span > span"
   );
 
+  // Oops! looks like there is no puzzle to play :(
+  if (!puzzleContainer) {
+    return false;
+  }
+
   // Now let's get an array of the possible elements
   const puzzleElements = puzzleContainer.childNodes;
 
