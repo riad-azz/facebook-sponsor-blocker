@@ -1,5 +1,6 @@
 /* exported FeedSelector */
-const FeedSelector = "[role='main'] div > h3 + div:not([class])";
+// const FeedSelector = "[role='main'] div > h3 + div:not([class])";
+const FeedSelector = "[role='main'] div#watch_feed";
 
 /* exported MESSAGE_CODE */
 const MESSAGE_CODE = {
