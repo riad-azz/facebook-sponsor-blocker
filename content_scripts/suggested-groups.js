@@ -11,7 +11,7 @@
  * @param {boolean} [isBlocking=true] - Whether to block the suggested groups or not.
  * @return {boolean} Returns true if the suggested groups was removed, otherwise false.
  */
-const handleSuggestedGroups = (post, isBlocking = true) => {
+function handleSuggestedGroups(post, isBlocking = true) {
   const SELECTOR = "a[href='/groups/discover/']";
 
   const isSuggestedGroups = !!post.querySelector(SELECTOR);
@@ -27,4 +27,4 @@ const handleSuggestedGroups = (post, isBlocking = true) => {
   hideElement(post);
   debugLogger("Found and removed suggested groups", post);
   return true;
-};
+}

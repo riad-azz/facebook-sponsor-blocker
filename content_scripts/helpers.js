@@ -7,19 +7,46 @@ const DEBUG = true;
  *
  * @param {...any} args - The arguments to be logged.
  */
-const debugLogger = (...args) => {
+function debugLogger(...args) {
   // Show debugging info in the console only if DEBUG is set to true
   if (DEBUG) {
     console.debug(...args);
   }
-};
+}
 
 /* exported deleteInnerHtml */
-const deleteInnerHtml = (element) => {
+function deleteInnerHtml(element) {
   if (element.isConnected) {
     element.innerHTML = "";
   }
-};
+}
+
+/**
+ * Marks an element as blocked by adding the "blocked-by-fsb" class.
+ *
+ * @param {Object} element - The element to be marked as blocked.
+ */
+function markAsBlocked(element) {
+  if (element.isConnected) {
+    element.classList.add("blocked-by-fsb");
+  }
+}
+
+/**
+ * Checks if the given element is already blocked.
+ *
+ * @param {Object} element - The element to check.
+ * @return {boolean} Returns true if the element is already blocked, false otherwise.
+ */
+function isAlreadyBlocked(element) {
+  if (element.isConnected) {
+    const hasClass = element.classList.contains("blocked-by-fsb");
+    const hasStyle = element.style.display === "none";
+    return hasClass && hasStyle;
+  }
+
+  return false;
+}
 
 /* exported hideElement */
 /**
@@ -27,15 +54,15 @@ const deleteInnerHtml = (element) => {
  *
  * @param {HTMLElement} element - The element to hide.
  */
-const hideElement = async (element) => {
+async function hideElement(element) {
   if (element.isConnected) {
-    element.className = "";
     element.style.display = "none";
+    markAsBlocked(element);
     return true;
   }
 
   return false;
-};
+}
 
 /* exported waitForElement */
 /**
@@ -46,11 +73,7 @@ const hideElement = async (element) => {
  * @param {boolean} infinite - Whether to wait indefinitely or give up after a certain number of tries. Defaults to false.
  * @returns {Promise<HTMLElement|null>} - A promise that resolves to the found element, or null if it was not found.
  */
-const waitForElement = async (
-  selector,
-  parent = document,
-  infinite = false
-) => {
+async function waitForElement(selector, parent = document, infinite = false) {
   return new Promise((resolve) => {
     let remainingTries = 150;
     const interval = setInterval(() => {
@@ -67,7 +90,7 @@ const waitForElement = async (
       }
     }, 500);
   });
-};
+}
 
 /* exported getStorageValues */
 /**
@@ -76,13 +99,13 @@ const waitForElement = async (
  * @param {Array<string>} keys - The keys for the values to retrieve.
  * @returns {Promise<Object>} - A promise that resolves to an object containing the retrieved values.
  */
-const getStorageValues = async (keys) => {
+async function getStorageValues(keys) {
   // Retrieve values from local storage
   const values = await browser.storage.local.get(keys);
 
   // Return the retrieved values
   return values;
-};
+}
 
 /* exported listenToStorageChange */
 /**
@@ -94,9 +117,9 @@ const getStorageValues = async (keys) => {
  * @param {Function} callback - The callback function to be called when storage changes.
  *
  */
-const listenToStorageChange = (callback) => {
+function listenToStorageChange(callback) {
   browser.storage.onChanged.addListener((changes, area) => {
     const changedKeys = Object.keys(changes);
     callback(changes, changedKeys);
   });
-};
+}

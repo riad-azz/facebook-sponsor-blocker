@@ -14,7 +14,7 @@ browser.runtime.onInstalled.addListener(details => {
 });
 
 // On message listener (from content and popup scripts)
-const handleOnMessage = (request, sender, sendResponse) => {
+function handleOnMessage(request, sender, sendResponse) {
   switch (request.code) {
     case "UPDATE_BADGE_TEXT":
       browser.browserAction.setBadgeText({
@@ -25,6 +25,6 @@ const handleOnMessage = (request, sender, sendResponse) => {
     default:
       console.log("Unknown message received in background.js:", request.title);
   }
-};
+}
 
 browser.runtime.onMessage.addListener(handleOnMessage);

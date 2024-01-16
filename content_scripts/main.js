@@ -5,6 +5,7 @@
 // ------------ helpers imports ------------
 
 /* global waitForElement */
+/* global isAlreadyBlocked */
 /* global getStorageValues */
 /* global listenToStorageChange */
 
@@ -36,8 +37,8 @@
    *
    * @return {Promise<void>} A promise that resolves once the feed blocker is initialized.
    */
-  const initFeedBlocker = async () => {
-    const handleBlockRulesChange = (changes, changedKeys) => {
+  async function initFeedBlocker() {
+    function handleBlockRulesChange(changes, changedKeys) {
       // Update blockedCount if it changed
       if ("blockedCount" in changedKeys) {
         blockedCount = changes.blockedCount.newValue;
@@ -62,7 +63,7 @@
       if (feedElement) {
         scanFeedPosts(feedElement.children);
       }
-    };
+    }
 
     // Get stored block rules
     const storedRules = await getStorageValues([
@@ -84,30 +85,30 @@
 
     // Listen for block rules changes
     listenToStorageChange(handleBlockRulesChange);
-  };
+  }
 
   /**
    * Updates the badge text, used for displaying the current tab count.
    *
    * @param {string} text - The new text for the badge.
    */
-  const updateBadgeText = (text) => {
-    browser.runtime.sendMessage({
+  async function updateBadgeText(text) {
+    await browser.runtime.sendMessage({
       code: "UPDATE_BADGE_TEXT",
       text: text,
     });
-  };
+  }
 
   /**
    * Increase the blocked count and update it in local storage.
    *
    * @return {Promise<void>}
    */
-  const increaseBlockedCount = async () => {
+  async function increaseBlockedCount() {
     tabCount += 1;
     blockedCount += 1;
-    browser.storage.local.set({ blockedCount });
-  };
+    await browser.storage.local.set({ blockedCount });
+  }
 
   /**
    * Scans the feed post element and checks if it matches any block rules.
@@ -115,7 +116,7 @@
    * @param {object} element - The feed post element to be scanned.
    * @return {boolean} Returns true if the post was removed, otherwise false.
    */
-  const scanFeedPost = (element) => {
+  function scanFeedPost(element) {
     // Check if Suggested reels
     if (handleSuggestedReels(element, blockRules.blockSuggestedReels)) {
       return true;
@@ -137,7 +138,7 @@
     }
 
     return false;
-  };
+  }
 
   /**
    * Scans the feed posts and increases the blocked count if a post is removed.
@@ -145,22 +146,28 @@
    * @param {Array} posts - The array of feed posts to be scanned.
    * @return {undefined} This function does not return a value.
    */
-  const scanFeedPosts = async (posts) => {
+  function scanFeedPosts(posts) {
     for (const post of posts) {
+      // Check if already blocked
+      if (isAlreadyBlocked(post)) continue;
+
+      // Scan the post and remove it if it fits the block rules
       const isRemoved = scanFeedPost(post);
+
+      // Increase the blocked count and update the badge text
       if (isRemoved) {
         increaseBlockedCount();
         updateBadgeText(tabCount.toString());
       }
     }
-  };
+  }
 
   /**
    * Observes the feed element for changes and scans new feed posts.
    *
    * @return {Promise<void>} - A promise that resolves once the observation is set up.
    */
-  const observeFeed = async () => {
+  async function observeFeed() {
     // Wait for the feed element and set it globally
     feedElement = await waitForElement(FeedSelector, document, true);
 
@@ -175,12 +182,12 @@
     observer.observe(feedElement, { childList: true });
 
     scanFeedPosts(feedElement.children);
-  };
+  }
 
-  const runFeedBlocker = async () => {
+  async function runFeedBlocker() {
     await initFeedBlocker();
     await observeFeed();
-  };
+  }
 
   // Run the feed blocker
   runFeedBlocker();

@@ -18,30 +18,30 @@
   const totalCountElement = document.getElementById("fsb-total-count");
 
   // Listen for sponsored checkbox changes
-  const sponsoredCheckboxListener = async (event) => {
+  function sponsoredCheckboxListener(event) {
     const value = event.target.checked;
     browser.storage.local.set({ blockSponsored: value });
-  };
+  }
 
   // Listen for suggested checkbox changes
-  const suggestedCheckboxListener = async (event) => {
+  function suggestedCheckboxListener(event) {
     const value = event.target.checked;
     browser.storage.local.set({ blockSuggested: value });
-  };
+  }
 
   // Listen for reels checkbox changes
-  const suggestedReelsCheckboxListener = async (event) => {
+  function suggestedReelsCheckboxListener(event) {
     const value = event.target.checked;
     browser.storage.local.set({ blockSuggestedReels: value });
-  };
+  }
 
   // Listen for groups checkbox changes
-  const suggestedGroupsCheckboxListener = async (event) => {
+  function suggestedGroupsCheckboxListener(event) {
     const value = event.target.checked;
     browser.storage.local.set({ blockSuggestedGroups: value });
-  };
+  }
 
-  const runPopupScript = async () => {
+  async function runPopupScript() {
     const {
       blockedCount = 0,
       blockSuggested,
@@ -83,7 +83,7 @@
         totalCountElement.innerText = `${blockedCount}`;
       }
     });
-  };
+  }
 
   // Run the popup
   runPopupScript();

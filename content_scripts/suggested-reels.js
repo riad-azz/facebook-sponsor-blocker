@@ -11,7 +11,7 @@
  * @param {boolean} [isBlocking=true] - Whether to block the suggested reels or not.
  * @return {boolean} Returns true if the suggested reels was removed, otherwise false.
  */
-const handleSuggestedReels = (post, isBlocking = true) => {
+function handleSuggestedReels(post, isBlocking = true) {
   const SELECTOR = "a[href='/reels/create/']";
 
   const isSuggestedReels = !!post.querySelector(SELECTOR);
@@ -27,4 +27,4 @@ const handleSuggestedReels = (post, isBlocking = true) => {
   hideElement(post);
   debugLogger("Found and removed suggested reels:", post);
   return true;
-};
+}
