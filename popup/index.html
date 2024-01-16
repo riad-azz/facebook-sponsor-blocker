@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -16,10 +16,6 @@
       <div class="fsb-divider"></div>
       <div class="fsb-description">Blocks Sponsored and Suggested posts</div>
       <div class="fsb-text-row">
-        Blocked on this page
-        <span id="fsb-tab-count" class="fsb-counter-text">0</span>
-      </div>
-      <div class="fsb-text-row">
         Blocked since install
         <span id="fsb-total-count" class="fsb-counter-text">0</span>
       </div>
@@ -36,13 +32,18 @@
           Block Suggested Posts
         </label>
       </div>
-    </div>
-    <div class="fsb-input-row">
-      <label for="reels-checkbox">
-        <input type="checkbox" id="reels-checkbox" />
-        Block Suggested Reels
-      </label>
-    </div>
+      <div class="fsb-input-row">
+        <label for="suggested-reels-checkbox">
+          <input type="checkbox" id="suggested-reels-checkbox" />
+          Block Suggested Reels
+        </label>
+      </div>
+      <div class="fsb-input-row">
+        <label for="suggested-groups-checkbox">
+          <input type="checkbox" id="suggested-groups-checkbox" />
+          Block Suggested Groups
+        </label>
+      </div>
       <div class="fsb-divider"></div>
       <div class="fsb-author">
         <a
@@ -53,6 +54,7 @@
         </a>
       </div>
     </main>
-    <script src="popup.js"></script>
+    <script src="../content_scripts/helpers.js"></script>
+    <script src="index.js"></script>
   </body>
 </html>
