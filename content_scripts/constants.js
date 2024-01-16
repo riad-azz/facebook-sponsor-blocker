@@ -1,23 +1,9 @@
-/* exported PostSelectors */
-const PostSelectors = {
-  Post: "div > div > div.x1yztbdb.x1n2onr6.xh8yej3.x1ja2u2z",
-  SponsoredUse: "use[*|href]",
-  SponsoredTag: ".x1rg5ohu.x6ikm8r.x10wlt62.x16dsc37.xt0b8zv",
-  SponsoredText: "span > span > span",
-  SuggestedReel: "a[href='/reels/create/']",
-  SuggestedGroup: "a[href='/groups/discover/']",
-  SuggestedPost:
-    "div.x1pi30zi.x1swvt13 > div.xdrs2t1.x1q0q8m5.xso031l.x1l90r2v.xyamay9.x1n2onr6 span",
-};
-
 /* exported FeedSelector */
 const FeedSelector = "[role='main'] div > h3 + div:not([class])";
 
-/* exported ContentMessages */
-const ContentMessages = {
-  BLOCK_SPONSORED_UPDATED: "BLOCK_SPONSORED_UPDATED",
-  BLOCK_SUGGESTED_UPDATED: "BLOCK_SUGGESTED_UPDATED",
-  BLOCK_SUGGESTED_REELS_UPDATED: "BLOCK_SUGGESTED_REELS_UPDATED",
+/* exported MESSAGE_CODE */
+const MESSAGE_CODE = {
+  UPDATE_BADGE_TEXT: "UPDATE_BADGE_TEXT",
 };
 
 /* exported sponsorWordsFilter */

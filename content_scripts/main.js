@@ -1,6 +1,7 @@
 //  ------------ constants imports ------------
 
 /* global FeedSelector */
+/* global MESSAGE_CODE */
 
 // ------------ helpers imports ------------
 
@@ -94,7 +95,7 @@
    */
   async function updateBadgeText(text) {
     await browser.runtime.sendMessage({
-      code: "UPDATE_BADGE_TEXT",
+      code: MESSAGE_CODE.UPDATE_BADGE_TEXT,
       text: text,
     });
   }
