@@ -148,7 +148,6 @@ function sponsoredCheckDirectText(post) {
  */
 function sponsoredPlayThePuzzle(post) {
   // Lets play Facebook's find the sponsored word puzzle!
-
   // First grab the element that holds the possible
   // sponsored word elements.
   const puzzleContainer = post.querySelector(
@@ -170,11 +169,14 @@ function sponsoredPlayThePuzzle(post) {
   );
 
   // We sort the elements by their order
-  const solvedWordArray = [...validPuzzleElements].sort(
+  const orderedPuzzleElements = [...validPuzzleElements].sort(
     (a, b) =>
       Number(window.getComputedStyle(a).order) -
       Number(window.getComputedStyle(b).order)
   );
+
+  // Now we map the elements to their text content
+  const solvedWordArray = orderedPuzzleElements.map((c) => c.textContent);
 
   // Finally we join the elements together and remove any white space
   const solvedWord = solvedWordArray.join("").trim();

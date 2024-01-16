@@ -1,6 +1,16 @@
 /* exported FeedSelector */
-// const FeedSelector = "[role='main'] div > h3 + div:not([class])";
-const FeedSelector = "[role='main'] div#watch_feed";
+const FeedSelector = "[role='main'] div > h3 + div:not([class])";
+
+/* exported WatchFeedSelector */
+const WatchFeedSelector =
+  "[role='main'] div#watch_feed > div > div > div > div > div:not([class])";
+
+/* exported LOCATION_ROUTES */
+const LOCATION_ROUTES = {
+  HOME: "HOME",
+  WATCH: "WATCH",
+  UNKNOWN: "UNKNOWN",
+};
 
 /* exported MESSAGE_CODE */
 const MESSAGE_CODE = {

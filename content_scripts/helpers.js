@@ -1,5 +1,7 @@
 const DEBUG = true;
 
+/* global LOCATION_ROUTES */
+
 /* exported debugLogger */
 /**
  * Log debugging information to the console.
@@ -122,4 +124,22 @@ function listenToStorageChange(callback) {
     const changedKeys = Object.keys(changes);
     callback(changes, changedKeys);
   });
+}
+
+/* exported getLocationRoute */
+/**
+ * Returns the current route name based on the provided href.
+ *
+ * @param {string} href - The location href.
+ * @return {string} The current route.
+ */
+function getLocationRoute(href = document.location.href) {
+  const url = new URL(href);
+  if (url.pathname === "/") {
+    return LOCATION_ROUTES.HOME;
+  } else if (url.pathname.startsWith("/watch")) {
+    return LOCATION_ROUTES.WATCH;
+  } else {
+    return LOCATION_ROUTES.UNKNOWN;
+  }
 }

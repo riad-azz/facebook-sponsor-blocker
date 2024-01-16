@@ -1,13 +1,16 @@
 //  ------------ constants imports ------------
 
-/* global FeedSelector */
 /* global MESSAGE_CODE */
+/* global FeedSelector */
+/* global WatchFeedSelector */
+/* global LOCATION_ROUTES */
 
 // ------------ helpers imports ------------
 
 /* global waitForElement */
-/* global isAlreadyBlocked */
 /* global getStorageValues */
+/* global getLocationRoute */
+/* global isAlreadyBlocked */
 /* global listenToStorageChange */
 
 //  ------------ Blockers imports ------------
@@ -21,6 +24,7 @@
   var tabCount = 0;
   var blockedCount = 0;
   var feedElement = null;
+  var currentLocation = document.location.href;
 
   var blockRules = {
     blockSponsored: true,
@@ -28,6 +32,34 @@
     blockSuggestedReels: true,
     blockSuggestedGroups: true,
   };
+
+  function handleFeedObserver(mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        scanFeedPosts(mutation.addedNodes);
+      }
+    });
+  }
+
+  const feedObserver = new MutationObserver(handleFeedObserver);
+
+  function handleLocationObserver(mutations) {
+    if (currentLocation !== document.location.href) {
+      // Update current location URL
+      currentLocation = document.location.href;
+
+      const currentRoute = getLocationRoute();
+      if (currentRoute === LOCATION_ROUTES.HOME) {
+        observeFeed(FeedSelector);
+      } else if (currentRoute === LOCATION_ROUTES.WATCH) {
+        observeFeed(WatchFeedSelector);
+      } else {
+        feedObserver.disconnect();
+      }
+    }
+  }
+
+  const locationObserver = new MutationObserver(handleLocationObserver);
 
   /**
    * Initializes the feed blocker and sets up the necessary event listeners.
@@ -168,26 +200,35 @@
    *
    * @return {Promise<void>} - A promise that resolves once the observation is set up.
    */
-  async function observeFeed() {
+  async function observeFeed(selector) {
     // Wait for the feed element and set it globally
-    feedElement = await waitForElement(FeedSelector, document, true);
+    feedElement = await waitForElement(selector, document, true);
+    feedObserver.observe(feedElement, { childList: true });
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          scanFeedPosts(mutation.addedNodes);
-        }
-      });
-    });
-
-    observer.observe(feedElement, { childList: true });
-
+    // Scan the feed posts to clean any posts that escaped
     scanFeedPosts(feedElement.children);
+  }
+
+  /**
+   * Observes the feed element for changes and scans new feed posts.
+   *
+   * @return {Promise<void>} - A promise that resolves once the observation is set up.
+   */
+  function observeLocation() {
+    const currentRoute = getLocationRoute();
+    if (currentRoute === LOCATION_ROUTES.HOME) {
+      observeFeed(FeedSelector);
+    } else if (currentRoute === LOCATION_ROUTES.WATCH) {
+      observeFeed(WatchFeedSelector);
+    }
+
+    // Start observing the body for changes
+    locationObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   async function runFeedBlocker() {
     await initFeedBlocker();
-    await observeFeed();
+    observeLocation();
   }
 
   // Run the feed blocker
