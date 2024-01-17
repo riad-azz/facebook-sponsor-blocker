@@ -1,7 +1,5 @@
 const DEBUG = true;
 
-/* global LOCATION_ROUTES */
-
 /* exported debugLogger */
 /**
  * Log debugging information to the console.
@@ -75,7 +73,7 @@ async function hideElement(element) {
  * @param {boolean} infinite - Whether to wait indefinitely or give up after a certain number of tries. Defaults to false.
  * @returns {Promise<HTMLElement|null>} - A promise that resolves to the found element, or null if it was not found.
  */
-async function waitForElement(selector, parent = document, infinite = false) {
+async function waitForElement(selector, parent = document, infinite = false, delay = 500) {
   return new Promise((resolve) => {
     let remainingTries = 150;
     const interval = setInterval(() => {
@@ -90,7 +88,7 @@ async function waitForElement(selector, parent = document, infinite = false) {
       } else if (!infinite) {
         remainingTries--;
       }
-    }, 500);
+    }, delay);
   });
 }
 
@@ -124,22 +122,4 @@ function listenToStorageChange(callback) {
     const changedKeys = Object.keys(changes);
     callback(changes, changedKeys);
   });
-}
-
-/* exported getLocationRoute */
-/**
- * Returns the current route name based on the provided href.
- *
- * @param {string} href - The location href.
- * @return {string} The current route.
- */
-function getLocationRoute(href = document.location.href) {
-  const url = new URL(href);
-  if (url.pathname === "/") {
-    return LOCATION_ROUTES.HOME;
-  } else if (url.pathname.startsWith("/watch")) {
-    return LOCATION_ROUTES.WATCH;
-  } else {
-    return LOCATION_ROUTES.UNKNOWN;
-  }
 }

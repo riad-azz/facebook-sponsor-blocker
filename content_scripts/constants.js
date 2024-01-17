@@ -5,13 +5,6 @@ const FeedSelector = "[role='main'] div > h3 + div:not([class])";
 const WatchFeedSelector =
   "[role='main'] div#watch_feed > div > div > div > div > div:not([class])";
 
-/* exported LOCATION_ROUTES */
-const LOCATION_ROUTES = {
-  HOME: "HOME",
-  WATCH: "WATCH",
-  UNKNOWN: "UNKNOWN",
-};
-
 /* exported MESSAGE_CODE */
 const MESSAGE_CODE = {
   UPDATE_BADGE_TEXT: "UPDATE_BADGE_TEXT",
