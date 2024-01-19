@@ -23,6 +23,8 @@
   var tabCount = 0;
   var blockedCount = 0;
   var feedElement = null;
+  var isSearchingFeed = false;
+  var isSearchingWatchFeed = false;
   var watchFeedElement = null;
   var currentLocation = document.location.href;
 
@@ -33,6 +35,25 @@
     blockSuggestedGroups: true,
   };
 
+  function handleFeedObserver(mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        scanFeedPosts(mutation.addedNodes);
+      }
+    });
+  }
+
+  const feedObserver = new MutationObserver(handleFeedObserver);
+
+  function handleWatchFeedObserver(mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        scanFeedPosts(mutation.addedNodes);
+      }
+    });
+  }
+
+  const watchFeedObserver = new MutationObserver(handleWatchFeedObserver);
 
   /**
    * Initializes the feed blocker and sets up the necessary event listeners.
@@ -174,29 +195,61 @@
   }
 
   /**
+   * Asynchronously sets the feed element.
+   * 
+   * @return {Promise<void>} A Promise that resolves when the feed element is set.
+   */
+  async function setFeedElement() {
+    if (isSearchingFeed) return;
+
+    try {
+      isSearchingFeed = true;
+      feedElement = await waitForElement(FeedSelector, document, true);
+      debugLogger("Feed element found", feedElement);
+
+      // Scan the feed posts to clean any posts that escaped
+      scanFeedPosts(feedElement.children);
+    } finally {
+      isSearchingFeed = false;
+    }
+  }
+
+  /**
+   * Set the watch feed element asynchronously.
+   *
+   * @return {Promise<void>} Resolves when the watch feed element is set.
+   */
+  async function setWatchFeedElement() {
+    if (isSearchingWatchFeed) return;
+
+    try {
+      isSearchingWatchFeed = true;
+      watchFeedElement = await waitForElement(WatchFeedSelector, document, true, 2000);
+      debugLogger("Watch feed element found", watchFeedElement);
+
+      // Scan the feed posts to clean any posts that escaped
+      scanFeedPosts(watchFeedElement.children);
+    } finally {
+      isSearchingWatchFeed = false;
+    }
+  }
+
+  /**
    * Observes the feed element for changes and scans new feed posts.
    *
    * @return {Promise<void>} - A promise that resolves once the observation is set up.
    */
-  async function observeFeed(selector) {
+  async function observeFeed() {
+    // Disconnect the previous observer if it exists
+    feedObserver.disconnect()
+
     // Wait for the feed element and set it globally
-    feedElement = await waitForElement(selector, document, true);
-    debugLogger("Feed element found", feedElement);
+    await setFeedElement();
 
-    function handleFeedObserver(mutations) {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          scanFeedPosts(mutation.addedNodes);
-        }
-      });
+    if (feedElement) {
+
+      feedObserver.observe(feedElement, { childList: true });
     }
-
-    const feedObserver = new MutationObserver(handleFeedObserver);
-
-    feedObserver.observe(feedElement, { childList: true });
-
-    // Scan the feed posts to clean any posts that escaped
-    scanFeedPosts(feedElement.children);
   }
 
 
@@ -206,67 +259,44 @@
  * @return {Promise<void>} - A promise that resolves once the observation is set up.
  */
   async function observeWatchFeed() {
+    // Disconnect the previous observer if it exists
+    watchFeedObserver.disconnect()
+
     // Wait for the watch feed element and set it globally
-    watchFeedElement = await waitForElement(WatchFeedSelector, document, true, 2000);
-    debugLogger("Watch feed element found", watchFeedElement);
+    await setWatchFeedElement();
 
-    function handleWatchFeedObserver(mutations) {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          scanFeedPosts(mutation.addedNodes);
-        }
-      });
+    if (watchFeedElement) {
+      watchFeedObserver.observe(watchFeedElement, { childList: true });
     }
-
-    const watchFeedObserver = new MutationObserver(handleWatchFeedObserver);
-
-    watchFeedObserver.observe(watchFeedElement, { childList: true });
-
-    // Scan the feed posts to clean any posts that escaped
-    scanFeedPosts(watchFeedElement.children);
   }
 
   function observeLocation() {
-    async function refreshFeedElement() {
-      feedElement = await waitForElement(FeedSelector, document, true);
-
-      // Scan the feed posts to clean any posts that escaped
-      scanFeedPosts(feedElement.children);
-    }
-
-
-    async function refreshWatchFeedElement() {
-      watchFeedElement = await waitForElement(WatchFeedSelector, document, true);
-
-      // Scan the feed posts to clean any posts that escaped
-      scanFeedPosts(watchFeedElement.children);
-    }
 
     function handleLocationObserver() {
       if (currentLocation !== document.location.href) {
         // Update current location URL
         currentLocation = document.location.href;
 
-
         // Refresh the feed element if it's not connected
-        if (!feedElement.isConnected) {
-          refreshFeedElement();
+        if (!feedElement?.isConnected) {
+          observeFeed();
         }
 
+
         // Refresh the watch feed element if it's not connected
-        if (!watchFeedElement.isConnected) {
-          refreshWatchFeedElement();
+        if (!watchFeedElement?.isConnected) {
+          observeWatchFeed()
         }
       }
     }
     const locationObserver = new MutationObserver(handleLocationObserver);
-    locationObserver.observe(document.body, { childList: true, subtree: true });
+    locationObserver.observe(document, { childList: true, subtree: true });
   }
 
   async function runFeedBlocker() {
     await initFeedBlocker();
-    observeFeed(FeedSelector)
-    observeWatchFeed(WatchFeedSelector)
+    observeFeed()
+    observeWatchFeed()
     observeLocation()
   }
 
