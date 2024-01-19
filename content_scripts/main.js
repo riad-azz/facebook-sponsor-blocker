@@ -24,6 +24,7 @@
   var blockedCount = 0;
   var feedElement = null;
   var watchFeedElement = null;
+  var currentLocation = document.location.href;
 
   var blockRules = {
     blockSponsored: true,
@@ -198,6 +199,7 @@
     scanFeedPosts(feedElement.children);
   }
 
+
   /**
  * Observes the feed element for changes and scans new feed posts.
  *
@@ -224,10 +226,48 @@
     scanFeedPosts(watchFeedElement.children);
   }
 
+  function observeLocation() {
+    async function refreshFeedElement() {
+      feedElement = await waitForElement(FeedSelector, document, true);
+
+      // Scan the feed posts to clean any posts that escaped
+      scanFeedPosts(feedElement.children);
+    }
+
+
+    async function refreshWatchFeedElement() {
+      watchFeedElement = await waitForElement(WatchFeedSelector, document, true);
+
+      // Scan the feed posts to clean any posts that escaped
+      scanFeedPosts(watchFeedElement.children);
+    }
+
+    function handleLocationObserver() {
+      if (currentLocation !== document.location.href) {
+        // Update current location URL
+        currentLocation = document.location.href;
+
+
+        // Refresh the feed element if it's not connected
+        if (!feedElement.isConnected) {
+          refreshFeedElement();
+        }
+
+        // Refresh the watch feed element if it's not connected
+        if (!watchFeedElement.isConnected) {
+          refreshWatchFeedElement();
+        }
+      }
+    }
+    const locationObserver = new MutationObserver(handleLocationObserver);
+    locationObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   async function runFeedBlocker() {
     await initFeedBlocker();
     observeFeed(FeedSelector)
     observeWatchFeed(WatchFeedSelector)
+    observeLocation()
   }
 
   // Run the feed blocker
