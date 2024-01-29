@@ -276,19 +276,21 @@
       if (currentLocation !== document.location.href) {
         // Update current location URL
         currentLocation = document.location.href;
-
-        // Refresh the feed element if it's not connected
-        if (!feedElement?.isConnected) {
-          observeFeed();
-        }
-
-
-        // Refresh the watch feed element if it's not connected
-        if (!watchFeedElement?.isConnected) {
-          observeWatchFeed()
-        }
       }
+
+      // Refresh the feed element if it's not connected
+      if (!feedElement?.isConnected) {
+        observeFeed();
+      }
+
+
+      // Refresh the watch feed element if it's not connected
+      if (!watchFeedElement?.isConnected) {
+        observeWatchFeed()
+      }
+
     }
+
     const locationObserver = new MutationObserver(handleLocationObserver);
     locationObserver.observe(document, { childList: true, subtree: true });
   }
